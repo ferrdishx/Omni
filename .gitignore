@@ -1,0 +1,79 @@
+# ── Android ───────────────────────────────────────────
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle
+.gradle/
+build/
+**/build/
+gradle-wrapper.jar
+
+# Local config (contains your SDK path — never commit this)
+local.properties
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/modules.xml
+.idea/navEditor.xml
+.idea/deploymentTargetDropDown.xml
+*.iws
+*.ipr
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Keystore (NEVER commit your signing keys)
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# ProGuard
+proguard/
+
+# Google Services (contains API keys)
+google-services.json
+
+# Kotlin
+*.kotlin_module
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# yt-dlp binary (downloaded at runtime, not tracked)
+app/src/main/assets/bin/
+**/yt-dlp
+**/ffmpeg
+
+# Test results
+test-results/
+*.exec
+
+# Lint
+lint/
+*.html
+
+# Crash logs
+*.hprof
