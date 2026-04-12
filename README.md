@@ -112,7 +112,7 @@ Background      WorkManager
 
 </div>
 
-**Requirements:** Android 8.0 (API 26) or higher · ~30MB · ARM64 / ARMv7 / x86_64
+**Requirements:** Android 8.0 (API 26) or higher · ~100MB · ARM64 / ARMv7 / x86_64
 
 ---
 
@@ -223,7 +223,7 @@ This project is not affiliated with YouTube, Google, or any platform it supports
 ## License
 
 ```
-Copyright (C) 2025 ferrdishx
+Copyright (C) 2026 ferrdishx
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
