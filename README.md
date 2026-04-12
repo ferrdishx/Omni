@@ -30,11 +30,10 @@
 
 <div align="center">
 
-| Home | Download Options | Downloads | Settings |
-|------|-----------------|-----------|----------|
-| ![Home](screenshots/home.png) | ![Options](screenshots/options.png) | ![Downloads](screenshots/downloads.png) | ![Settings](screenshots/settings.png) |
+| Home | Library | Download Options | Downloads | Settings |
+| :---: | :---: | :---: | :---: | :---: |
+| ![Home](screenshots/home.png) | ![Library](screenshots/library.png) | ![Options](screenshots/options.png) | ![Downloads](screenshots/downloads.png) | ![Settings](screenshots/settings.png) |
 
-> **To add your screenshots:** create a `screenshots/` folder in the root of the repo and add `home.png`, `options.png`, `downloads.png` and `settings.png`.
 
 </div>
 
