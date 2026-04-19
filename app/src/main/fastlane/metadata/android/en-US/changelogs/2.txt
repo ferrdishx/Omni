@@ -1,0 +1,7 @@
+- New onboarding flow for permissions.
+- Room-backed Favorites system with dedicated tab.
+- Expanded download sheet with Advanced and Format options.
+- Added per-download controls: SponsorBlock, Trimming, Audio Normalization.
+- Support for browser cookies and proxy settings.
+- Optimized Release build with ABI splits (arm64-v8a, etc.).
+- Critical fixes for initialization crashes and metadata handling.

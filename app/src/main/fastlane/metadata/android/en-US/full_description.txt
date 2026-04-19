@@ -1,0 +1,10 @@
+Omni is a powerful, modern video and audio downloader for Android, designed with a focus on flexibility and advanced control.
+
+Key Features:
+- Liquid UI: A fluid, modern interface with bottom navigation and a draggable miniplayer.
+- Advanced Downloads: Granular control over formats, subtitles, SponsorBlock, and media trimming.
+- Favorites & Library: Organize your media with a Room-backed favorites system, featuring powerful search and filters.
+- Network Control: Custom proxy support, rate limiting, and browser-cookie integration for hardened sites.
+- High Performance: Optimized for Android SDK 36 with a small footprint through ABI-specific builds.
+
+Omni is 100% Open Source and respects your privacy.
