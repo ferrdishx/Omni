@@ -76,7 +76,7 @@ Images          Coil
 </div>
 
 ### 🚀 Automatic Updates (Recommended)
-To keep Omni updated automatically without the Play Store, we recommend using **[Obtainium](https://github.com/ImranRk/Obtainium)**. 
+To keep Omni updated automatically without the Play Store, we recommend using **[Obtainium](https://obtainium.imranr.dev/)**. 
 
 Simply copy the repository URL below and paste it directly into Obtainium:
 `https://github.com/ferrdishx/Omni`
