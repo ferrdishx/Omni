@@ -72,12 +72,14 @@ Images          Coil
 <div align="center">
 
 [![Download APK](https://img.shields.io/badge/⬇_Download_APK-Latest_Release-22c55e?style=for-the-badge)](https://github.com/ferrdishx/omni/releases/latest)
-[![Obtainium](https://img.shields.io/badge/Get_on-Obtainium-22c55e?style=for-the-badge&logo=github)](https://github.com/ImranRk/Obtainium)
+[![Add to Obtainium](https://img.shields.io/badge/Add_to-Obtainium-22c55e?style=for-the-badge&logo=github)](https://obtainium.imranr.dev/?r=https://github.com/ferrdishx/omni)
 
 </div>
 
 ### 🚀 Automatic Updates (Recommended)
-To keep Omni updated automatically without the Play Store, we recommend using **[Obtainium](https://github.com/ImranRk/Obtainium)**. Just add the URL of this repository to Obtainium, and it will notify you and install updates directly from GitHub.
+To keep Omni updated automatically, we recommend using **[Obtainium](https://github.com/ImranRk/Obtainium)**. 
+
+**One-click Install:** If you have Obtainium installed, click the **"Add to Obtainium"** button above or [click here](https://obtainium.imranr.dev/?r=https://github.com/ferrdishx/omni) to add the repository automatically.
 
 **Requirements:** Android 8.0+ · ARM64 (recommended) / ARMv7 / x86_64
 
