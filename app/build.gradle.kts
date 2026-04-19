@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -22,15 +24,42 @@ android {
         targetSdk = 36
         versionCode = 2
         versionName = "1.1.0-beta"
+    }
 
-        ndk {
-            abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            isUniversalApk = true
         }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = false
+            val props = Properties()
+            val propFile = file("../local.properties")
+            if (propFile.exists()) {
+                val input = propFile.inputStream()
+                props.load(input)
+                input.close()
+            }
+
+            if (props.containsKey("keystore.path")) {
+                println("OMNI BUILD: Applying official RELEASE signature.")
+                signingConfig = signingConfigs.create("release") {
+                    storeFile = file(props.getProperty("keystore.path"))
+                    storePassword = props.getProperty("keystore.password")
+                    keyAlias = props.getProperty("key.alias")
+                    keyPassword = props.getProperty("key.password")
+                }
+            } else {
+                println("OMNI BUILD: Keystore not found in local.properties. Using DEBUG key.")
+                signingConfig = signingConfigs.getByName("debug")
+            }
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
