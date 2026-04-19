@@ -17,13 +17,16 @@
 
 </div>
 
+---
+
 ## Screenshots
 
 <div align="center">
 
-| Home | Library | Download Options | Downloads | Settings |
-| :---: | :---: | :---: | :---: | :---: |
-| ![Home](screenshots/home.png) | ![Library](screenshots/library.png) | ![Options](screenshots/options.png) | ![Downloads](screenshots/downloads.png) | ![Settings](screenshots/settings.png) |
+| Home | Library | Favorites | Video Options | Audio Options | Download Options | Downloads | Settings |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| ![Home](screenshots/home.png) | ![Library](screenshots/library.png) | ![Favorites](screenshots/favorites.png) | ![Video Options](screenshots/options_video.png) | ![Audio Options](screenshots/options_audio.png) | ![Options](screenshots/options.png) | ![Downloads](screenshots/downloads.png) | ![Settings](screenshots/settings.png) |
+
 
 </div>
 
@@ -187,7 +190,3 @@ Omni is built on the shoulders of other open source projects. Several UI pattern
 GPL-3.0 · Built by [ferrdishx](https://github.com/ferrdishx)
 
 <div align="center">
-
-**[⬇ Download](https://github.com/ferrdishx/omni/releases/latest) · [🐛 Report Bug](https://github.com/ferrdishx/omni/issues) · [💡 Request Feature](https://github.com/ferrdishx/omni/issues)**
-
-</div>
