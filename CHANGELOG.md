@@ -15,6 +15,8 @@ All notable changes to Omni are documented in this file.
 
 ### Improved
 
+- **Release Optimization:** App performance significantly boosted with R8/ProGuard code shrinking and resource optimization.
+- **Smaller Install Size:** Added support for ABI-specific APK splits (arm64-v8a, armeabi-v7a, etc.), reducing the app footprint for most users.
 - Player experience was reworked with better Picture-in-Picture handling, tighter mini-player integration, richer artist/artwork metadata, and smoother transitions into playback from Downloads, Library, and Favorites.
 - Library browsing now surfaces author information, resolves local/audio thumbnails more reliably, and includes direct favorite actions in the media menu.
 - Download reliability was hardened for stricter sites with updated `yt-dlp` request options, forced IPv4, extractor bypass tuning, and browser-cookie support.
@@ -22,6 +24,7 @@ All notable changes to Omni are documented in this file.
 
 ### Fixed
 
+- **Build Stability:** Resolved critical ProGuard/R8 issues that caused crashes on app initialization (Python/JNI binding).
 - Better recovery for local files that exist on disk but were missing or stale in the database.
 - Better handling of sidecar and embedded cover art for downloaded audio.
 - More consistent app naming for the beta line, including the launcher label and `1.1.0-beta` version metadata.
