@@ -1,0 +1,48 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build Release APKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant Execute Permission to Gradlew
+        run: chmod +x gradlew
+
+      - name: Build Release APKs
+        run: ./gradlew :app:assembleRelease
+
+      - name: Sign APKs (Debug Fallback)
+        # Note: Since the real keystore is in local.properties (ignored), 
+        # the build uses the debug key as configured in build.gradle.kts.
+        run: echo "Build complete using debug fallback for CI."
+
+      - name: Prepare Release Assets
+        run: |
+          mkdir -p release-artifacts
+          cp app/build/outputs/apk/release/*.apk release-artifacts/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release-artifacts/*.apk
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
