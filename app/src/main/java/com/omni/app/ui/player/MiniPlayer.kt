@@ -60,7 +60,7 @@ fun MiniPlayer(
         tonalElevation = if (isLowPerf) 0.dp else 8.dp,
         shape = RoundedCornerShape(20.dp),
         border = androidx.compose.foundation.BorderStroke(
-            0.5.dp, 
+            0.5.dp,
             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f)
         )
     ) {
@@ -110,7 +110,7 @@ fun MiniPlayer(
                     val displayArtist = remember(mediaMetadata) {
                         val artist = mediaMetadata.artist?.toString() ?: mediaMetadata.albumArtist?.toString()
                         val omniAuthor = mediaMetadata.extras?.getString("omni_author")
-                        
+
                         when {
                             !artist.isNullOrBlank() && artist != "Audio" && artist != "Video" -> artist
                             !omniAuthor.isNullOrBlank() && omniAuthor != "Audio" && omniAuthor != "Video" && omniAuthor != "Local File" && omniAuthor != "Unknown" -> omniAuthor

@@ -29,7 +29,7 @@ class OmniPlayerViewModel(application: Application) : AndroidViewModel(applicati
     val mediaController: StateFlow<Player?> = playerController.mediaController
     val currentMediaItem: StateFlow<MediaItem?> = playerController.currentMediaItem
     val mediaMetadata: StateFlow<MediaMetadata> = playerController.mediaMetadata
-    
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val isFavorite: StateFlow<Boolean> = currentMediaItem
         .flatMapLatest { item ->
@@ -235,7 +235,7 @@ class OmniPlayerViewModel(application: Application) : AndroidViewModel(applicati
             } else {
                 val nameNoExt = file.nameWithoutExtension
                 val thumbAudioDir = File(omniDir, ".thumbaudio")
-                
+
                 val localThumb = File(file.parent, "$nameNoExt.jpg").takeIf { it.exists() }
                     ?: File(thumbAudioDir, "$nameNoExt.jpg").takeIf { it.exists() }
 
@@ -264,7 +264,7 @@ class OmniPlayerViewModel(application: Application) : AndroidViewModel(applicati
                     favoriteDao.insert(
                         FavoriteItem(
                             id = downloadedMedia.id,
-                            url = "", 
+                            url = "",
                             title = downloadedMedia.title,
                             author = downloadedMedia.author,
                             thumbnailUrl = downloadedMedia.thumbnailUrl,

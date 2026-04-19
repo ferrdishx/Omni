@@ -75,7 +75,7 @@ class DownloadNotificationHelper(private val context: Context) {
             .data(url)
             .allowHardware(false)
             .build()
-        
+
         val result = loader.execute(request)
         return if (result is SuccessResult) {
             (result.drawable as? BitmapDrawable)?.bitmap

@@ -1,7 +1,6 @@
 package com.omni.app.ui.settings
 
 import android.content.Context
-import com.omni.app.BuildConfig
 import android.net.Uri
 import android.widget.Toast
 import com.yausername.youtubedl_android.YoutubeDL
@@ -34,7 +33,6 @@ import com.omni.app.data.prefs.OmniPreferences
 import com.omni.app.data.prefs.UserPreferences
 import kotlinx.coroutines.launch
 
-// Options from original code
 val VIDEO_QUALITIES  = listOf("Best available", "4K (2160p)", "1440p", "1080p", "720p", "480p", "360p")
 val VIDEO_FORMATS    = listOf("MP4", "MKV", "WEBM", "AVI", "MOV")
 val AUDIO_FORMATS    = listOf("MP3", "AAC", "FLAC", "OPUS", "M4A", "WAV", "OGG")
@@ -207,7 +205,7 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
                 onClick = { expandedCategory = if (expandedCategory == "Other") null else "Other" }
             ) {
                 SubSettingToggle("Low performance mode", "Disables all animations, blurs and visual effects", state.lowPerfMode) {
-                    scope.launch { 
+                    scope.launch {
                         prefs.setLowPerfMode(it)
                         prefs.setReduceAnimations(it)
                     }
@@ -326,7 +324,6 @@ fun EngineUpdateItem() {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     var updateState by remember { mutableStateOf<String>("idle") }
-    // "idle" | "checking" | "updated" | "uptodate" | "error"
 
     val (statusText, statusColor) = when (updateState) {
         "checking"  -> "Checking for updates..." to MaterialTheme.colorScheme.primary

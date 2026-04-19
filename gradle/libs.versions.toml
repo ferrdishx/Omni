@@ -22,6 +22,7 @@ palette = "1.0.0"
 appcompat = "1.7.1"
 mediarouter = "1.8.1"
 foundation = "1.10.6"
+uiText = "1.10.6"
 # Kyant0 removed for stability
 
 
@@ -58,6 +59,7 @@ androidx-mediarouter = { group = "androidx.mediarouter", name = "mediarouter", v
 youtubedl-android = { group = "io.github.junkfood02.youtubedl-android", name = "library", version.ref = "youtubedl" }
 ffmpeg-android = { group = "io.github.junkfood02.youtubedl-android", name = "ffmpeg", version.ref = "ffmpeg" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
 # kyant libs removed
 
 

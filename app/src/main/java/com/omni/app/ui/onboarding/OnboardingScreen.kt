@@ -167,7 +167,7 @@ fun OnboardingScreen(
             Text("Let's Go", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
-    
+
     LaunchedEffect(Unit) {
         while(true) {
             kotlinx.coroutines.delay(1000)

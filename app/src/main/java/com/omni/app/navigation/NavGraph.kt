@@ -75,28 +75,7 @@ fun OmniNavHost(
                 onNavigateToPlayer = { onOpenPlayer() }
             )
         }
-        /* 
-        composable(
-            route = Screen.Player.route,
-            enterTransition = {
-                slideInVertically(
-                    initialOffsetY = { it },
-                    animationSpec = tween(duration, easing = FastOutSlowInEasing)
-                ) + fadeIn()
-            },
-            exitTransition = {
-                slideOutVertically(
-                    targetOffsetY = { it },
-                    animationSpec = tween(duration, easing = FastOutSlowInEasing)
-                ) + fadeOut()
-            }
-        ) {
-            com.omni.app.ui.player.OmniPlayerScreen(
-                viewModel = playerViewModel,
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
-        */
+
 
         composable(Screen.Settings.route) {
             SettingsScreen(onBack = { navController.popBackStack() })

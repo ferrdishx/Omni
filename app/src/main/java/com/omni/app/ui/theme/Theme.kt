@@ -49,7 +49,7 @@ fun OmniTheme(
     }
 
     val useDynamicColor = state.dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    
+
     val colorScheme = when {
         useDynamicColor -> {
             if (darkTheme) dynamicDarkColorScheme(context)
@@ -83,12 +83,11 @@ fun OmniTheme(
                 else -> FontFamily.Default
             }
         } catch (e: Exception) {
-            android.util.Log.e("OmniTheme", "Error selecting font family: ${state.fontFamily}", e)
             FontFamily.Default
         }
     }
 
-    val typography = remember(fontFamily) { 
+    val typography = remember(fontFamily) {
         getTypography(fontFamily)
     }
 
@@ -118,7 +117,6 @@ fun OmniTheme(
             colorScheme = colorScheme,
             typography = typography
         ) {
-            // Force the default text style to use the typography's bodyLarge
             ProvideTextStyle(value = MaterialTheme.typography.bodyLarge) {
                 content()
             }

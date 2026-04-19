@@ -48,10 +48,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers & Models
-// ─────────────────────────────────────────────────────────────────────────────
-
 data class PlatformInfo(
     val name: String,
     val urlFragment: String,
@@ -80,10 +76,6 @@ private val PLATFORMS = listOf(
 
 private fun detectPlatform(url: String): PlatformInfo? =
     PLATFORMS.find { url.contains(it.urlFragment, ignoreCase = true) }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// HomeScreen
-// ─────────────────────────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,10 +111,8 @@ fun HomeScreen(
     val scope        = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Easter Egg State
     var isHoldingHero by remember { mutableStateOf(false) }
 
-    // Rocket Easter Egg
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
     var isRocketLaunched by remember { mutableStateOf(false) }
@@ -154,7 +144,6 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize().padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = dimensions.gridSpacing * 1.5f).padding(top = 16.dp, bottom = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -176,7 +165,6 @@ fun HomeScreen(
                 IconButton(onClick = onSettingsClick) { Icon(Icons.Rounded.Settings, "Settings") }
             }
 
-            // Search Bar
             OutlinedTextField(
                 value = urlText,
                 onValueChange = { newValue ->
@@ -235,7 +223,6 @@ fun HomeScreen(
 
             Spacer(Modifier.height(10.dp))
 
-            // Chips
             AnimatedVisibility(visible = !isUrl && searchResults.isEmpty() && !isSearching, enter = slideInVertically { -it / 2 } + fadeIn(), exit  = slideOutVertically { -it / 2 } + fadeOut()) {
                 LazyRow(contentPadding = PaddingValues(horizontal = dimensions.gridSpacing * 1.5f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(PLATFORMS) { platform ->
@@ -251,7 +238,6 @@ fun HomeScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            // Content
             Box(modifier = Modifier.weight(1f).padding(horizontal = dimensions.gridSpacing * 1.5f)) {
                 AnimatedContent(
                     targetState = Triple(isSearching, searchResults, isUrl),
@@ -282,8 +268,8 @@ fun HomeScreen(
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     AnimatedVisibility(
-                                        visible = detectedPlatform != null && isUrl, 
-                                        enter = if (isLowPerf) fadeIn() else (scaleIn(spring(Spring.DampingRatioLowBouncy)) + fadeIn()), 
+                                        visible = detectedPlatform != null && isUrl,
+                                        enter = if (isLowPerf) fadeIn() else (scaleIn(spring(Spring.DampingRatioLowBouncy)) + fadeIn()),
                                         exit = if (isLowPerf) fadeOut() else (scaleOut() + fadeOut())
                                     ) {
                                         if (detectedPlatform != null) {
@@ -306,7 +292,6 @@ fun HomeScreen(
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         verticalArrangement = Arrangement.Center
                                     ) {
-                                        // Press feedback animation
                                         val iconTranslationY by animateFloatAsState(
                                             targetValue = if (isHoldingHero && !isLowPerf) 8f else 0f,
                                             animationSpec = spring(Spring.DampingRatioMediumBouncy),
@@ -350,8 +335,7 @@ fun HomeScreen(
                                                                         animationSpec = tween(800, easing = EaseIn)
                                                                     )
                                                                     delay(2000)
-                                                                    
-                                                                    // Reset with a bounce-in from below
+
                                                                     rocketTranslationY.snapTo(100f)
                                                                     clickCount = 0
                                                                     isRocketLaunched = false
@@ -374,7 +358,7 @@ fun HomeScreen(
                                             Box(contentAlignment = Alignment.Center) {
                                                 Crossfade(targetState = isRocketLaunched, label = "rocketIcon") { launched ->
                                                     Icon(
-                                                        if (launched) Icons.Rounded.RocketLaunch else Icons.Rounded.DownloadForOffline, 
+                                                        if (launched) Icons.Rounded.RocketLaunch else Icons.Rounded.DownloadForOffline,
                                                         null,
                                                         modifier = Modifier.size(40.dp * dimensions.titleSize),
                                                         tint = MaterialTheme.colorScheme.onPrimaryContainer

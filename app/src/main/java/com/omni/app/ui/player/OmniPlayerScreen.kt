@@ -71,10 +71,6 @@ import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.math.roundToInt
 
-// ─── Note: add to libs.versions.toml ─────────────────────────────────────────
-// palette = { module = "androidx.palette:palette-ktx", version = "1.0.0" }
-// ─────────────────────────────────────────────────────────────────────────────
-
 @OptIn(UnstableApi::class)
 @Composable
 fun OmniPlayerScreen(
@@ -113,7 +109,6 @@ fun OmniPlayerScreen(
                 it.artist?.toString() == "Video"
     } ?: false
 
-    // ── Dynamic palette from artwork ──────────────────────────────────────────
     val defaultBg = if (isDark) Color(0xFF0F0F14) else Color(0xFFF5F5F7)
     var dominantColor by remember { mutableStateOf(defaultBg) }
     val artworkUri = currentMediaItem?.mediaMetadata?.artworkUri
@@ -143,7 +138,6 @@ fun OmniPlayerScreen(
         label = "dominantColor"
     )
 
-    // ── State ─────────────────────────────────────────────────────────────────
     var isFullscreen         by remember { mutableStateOf(false) }
     var showControls         by remember { mutableStateOf(true) }
     val showPlaylist          = remember { mutableStateOf(false) }
@@ -173,7 +167,6 @@ fun OmniPlayerScreen(
             .fillMaxSize()
             .background(if (isDark) Color.Black else Color.White)
     ) {
-        // ── Background: blurred artwork + palette gradient ────────────────────
         if (!settings.lowPerfMode) {
             AsyncImage(
                 model = artworkUri,
@@ -192,7 +185,6 @@ fun OmniPlayerScreen(
             )
         }
 
-        // Palette gradient overlay
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -205,14 +197,12 @@ fun OmniPlayerScreen(
                 )
         )
 
-        // ── Main content ──────────────────────────────────────────────────────
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
-            // Top bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -256,7 +246,6 @@ fun OmniPlayerScreen(
 
             Spacer(Modifier.weight(0.08f))
 
-            // Artwork / Video
             val artScale by animateFloatAsState(
                 targetValue = if (settings.lowPerfMode) 1f else (if (isPlaying) 1f else 0.93f),
                 animationSpec = if (settings.lowPerfMode) snap() else spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow),
@@ -268,7 +257,7 @@ fun OmniPlayerScreen(
                     .fillMaxWidth()
                     .aspectRatio(if (isVideo && videoAspectRatio > 0f) videoAspectRatio else 1f)
                     .padding(if (isVideo && videoAspectRatio > 1.2f) 0.dp else 24.dp)
-                    .graphicsLayer { 
+                    .graphicsLayer {
                         scaleX = artScale
                         scaleY = artScale
                     }
@@ -314,7 +303,6 @@ fun OmniPlayerScreen(
 
             Spacer(Modifier.weight(0.08f))
 
-            // Title + Artist
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -357,11 +345,10 @@ fun OmniPlayerScreen(
                     )
                 }
                 Spacer(Modifier.height(4.dp))
-                // Artist
                 val displayArtist = remember(mediaMetadata) {
                     val artist = mediaMetadata.artist?.toString() ?: mediaMetadata.albumArtist?.toString()
                     val omniAuthor = mediaMetadata.extras?.getString("omni_author")
-                    
+
                     when {
                         !artist.isNullOrBlank() && artist != "Audio" && artist != "Video" -> artist
                         !omniAuthor.isNullOrBlank() && omniAuthor != "Audio" && omniAuthor != "Video" && omniAuthor != "Local File" && omniAuthor != "Unknown" -> omniAuthor
@@ -391,7 +378,6 @@ fun OmniPlayerScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // Progress bar
             PlayerProgressBar(
                 currentPosition = currentPosition,
                 duration = duration,
@@ -405,7 +391,6 @@ fun OmniPlayerScreen(
 
             Spacer(Modifier.height(4.dp))
 
-            // Playback controls
             val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
             val isPressed by interactionSource.collectIsPressedAsState()
             val btnScale  by animateFloatAsState(
@@ -442,7 +427,6 @@ fun OmniPlayerScreen(
                     lowPerfMode = settings.lowPerfMode
                 )
 
-                // Play / Pause button — glass style
                 Box(
                     modifier = Modifier
                         .size(72.dp)
@@ -481,14 +465,12 @@ fun OmniPlayerScreen(
                 )
             }
 
-            // Bottom row: Add | Quality chips | Heart | Queue
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left: Add Button
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     IconButton(onClick = { showAddQueueMenu = true }) {
                         Icon(Icons.Rounded.AddCircleOutline, null,
@@ -496,7 +478,6 @@ fun OmniPlayerScreen(
                     }
                 }
 
-                // Center: Quality chips
                 Row(
                     modifier = Modifier.weight(2f),
                     horizontalArrangement = Arrangement.Center,
@@ -512,7 +493,6 @@ fun OmniPlayerScreen(
                     }
                 }
 
-                // Right: Heart + Queue
                 Row(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.End,
@@ -540,71 +520,103 @@ fun OmniPlayerScreen(
             }
         }
 
-        // ── Fullscreen video ──────────────────────────────────────────────────
-        AnimatedVisibility(visible = isFullscreen, enter = fadeIn(), exit = fadeOut()) {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-                AndroidView(
-                    factory = { ctx ->
-                        PlayerView(ctx).apply {
-                            player = mediaController
-                            useController = false
-                            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                            setKeepContentOnPlayerReset(true)
-                            (getChildAt(0) as? ViewGroup)?.setOnClickListener { showControls = !showControls }
-                        }
-                    },
-                    update = { it.player = mediaController },
-                    modifier = Modifier.fillMaxSize()
+        if (isFullscreen) {
+            Dialog(
+                onDismissRequest = { isFullscreen = false },
+                properties = androidx.compose.ui.window.DialogProperties(
+                    usePlatformDefaultWidth = false,
+                    dismissOnBackPress = true,
+                    dismissOnClickOutside = false
                 )
-                AnimatedVisibility(visible = showControls, enter = fadeIn(), exit = fadeOut()) {
-                    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f))) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().align(Alignment.TopStart).padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(onClick = { isFullscreen = false }) {
-                                Icon(Icons.Rounded.FullscreenExit, null, tint = Color.White)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black)
+                        .clickable(
+                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                            indication = null
+                        ) { showControls = !showControls }
+                ) {
+                    AndroidView(
+                        factory = { ctx ->
+                            PlayerView(ctx).apply {
+                                player = mediaController
+                                useController = false
+                                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                                setKeepContentOnPlayerReset(true)
                             }
-                            Text(
-                                currentMediaItem?.mediaMetadata?.title?.toString() ?: "",
-                                color = Color.White, style = MaterialTheme.typography.titleMedium,
-                                maxLines = 1, overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.align(Alignment.Center),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(48.dp)
-                        ) {
-                            ControlIcon(Icons.Rounded.SkipPrevious, size = 48, onClick = { viewModel.playPrevious() })
-                            ControlIcon(
-                                icon = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                                size = 64,
-                                onClick = { viewModel.playPause() }
-                            )
-                            ControlIcon(Icons.Rounded.SkipNext, size = 48, onClick = { viewModel.playNext() })
-                        }
-                        Column(
+                        },
+                        update = { it.player = mediaController },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    AnimatedVisibility(
+                        visible = showControls,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Box(
                             modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp, vertical = 32.dp)
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.45f))
                         ) {
-                            Text(
-                                "${formatTime(currentPosition)} / ${formatTime(duration)}",
-                                color = Color.White, style = MaterialTheme.typography.labelMedium
-                            )
-                            Slider(
-                                value = currentPosition.toFloat(),
-                                onValueChange = { viewModel.seekTo(it.toLong()) },
-                                valueRange = 0f..duration.toFloat().coerceAtLeast(1f),
-                                colors = SliderDefaults.colors(
-                                    thumbColor = Color.White,
-                                    activeTrackColor = Color.White,
-                                    inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.TopStart)
+                                    .statusBarsPadding()
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(onClick = { isFullscreen = false }) {
+                                    Icon(Icons.Rounded.FullscreenExit, null, tint = Color.White)
+                                }
+                                Text(
+                                    currentMediaItem?.mediaMetadata?.title?.toString() ?: "",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
                                 )
-                            )
+                            }
+                            Row(
+                                modifier = Modifier.align(Alignment.Center),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(48.dp)
+                            ) {
+                                ControlIcon(Icons.Rounded.SkipPrevious, size = 48, onClick = { viewModel.playPrevious() })
+                                ControlIcon(
+                                    icon = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                                    size = 64,
+                                    onClick = { viewModel.playPause() }
+                                )
+                                ControlIcon(Icons.Rounded.SkipNext, size = 48, onClick = { viewModel.playNext() })
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .fillMaxWidth()
+                                    .navigationBarsPadding()
+                                    .padding(horizontal = 24.dp, vertical = 24.dp)
+                            ) {
+                                Text(
+                                    "${formatTime(currentPosition)} / ${formatTime(duration)}",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                                Slider(
+                                    value = currentPosition.toFloat(),
+                                    onValueChange = { viewModel.seekTo(it.toLong()) },
+                                    valueRange = 0f..duration.toFloat().coerceAtLeast(1f),
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = Color.White,
+                                        activeTrackColor = Color.White,
+                                        inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -616,7 +628,7 @@ fun OmniPlayerScreen(
                 library = library,
                 isDark = isDark,
                 onDismiss = { showAddQueueMenu = false },
-                onAdd = { item -> 
+                onAdd = { item ->
                     viewModel.addToQueue(item)
                     showAddQueueMenu = false
                 }
@@ -675,10 +687,6 @@ fun OmniPlayerScreen(
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// AddQueueDialog
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun AddQueueDialog(
@@ -800,10 +808,6 @@ fun AddQueueDialog(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Custom progress bar (thumb grows on press, label on top)
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun PlayerProgressBar(
     currentPosition: Long,
@@ -819,13 +823,13 @@ private fun PlayerProgressBar(
     Column(modifier = modifier) {
         Slider(
             value = if (isDragging) dragValue else currentPosition.toFloat(),
-            onValueChange = { 
+            onValueChange = {
                 isDragging = true
                 dragValue = it
             },
-            onValueChangeFinished = { 
+            onValueChangeFinished = {
                 onSeek(dragValue.toLong())
-                isDragging = false 
+                isDragging = false
             },
             valueRange = 0f..duration.toFloat().coerceAtLeast(1f),
             colors = SliderDefaults.colors(
@@ -848,10 +852,6 @@ private fun PlayerProgressBar(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Quality chip with accent color tint
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun QualityChip(label: String, accentColor: Color) {
     Surface(
@@ -869,10 +869,6 @@ private fun QualityChip(label: String, accentColor: Color) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Reusable control icon
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun ControlIcon(
     icon: ImageVector,
@@ -888,7 +884,7 @@ private fun ControlIcon(
         animationSpec = if (lowPerfMode) snap() else spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "iconScale"
     )
-    
+
     val finalTint by animateColorAsState(
         targetValue = if (isActive) activeColor else tint,
         animationSpec = if (lowPerfMode) snap() else tween(400),
@@ -898,7 +894,6 @@ private fun ControlIcon(
     IconButton(onClick = onClick) {
         Box(contentAlignment = Alignment.Center) {
             if (isActive && !lowPerfMode) {
-                // Glow effect
                 Box(
                     modifier = Modifier
                         .size((size * 1.5).dp)
@@ -920,20 +915,12 @@ private fun ControlIcon(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Color extension
-// ─────────────────────────────────────────────────────────────────────────────
-
 private fun Color.lighten(by: Float): Color =
     copy(
         red   = (red   + (1f - red)   * by).coerceIn(0f, 1f),
         green = (green + (1f - green) * by).coerceIn(0f, 1f),
         blue  = (blue  + (1f - blue)  * by).coerceIn(0f, 1f)
     )
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PlaybackSettingsDialog (unchanged logic, translated labels)
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun PlaybackSettingsDialog(
@@ -1043,10 +1030,6 @@ fun PlaybackSlider(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PlaylistDrawer (unchanged logic)
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 fun PlaylistDrawer(
     queue: List<androidx.media3.common.MediaItem>,
@@ -1103,10 +1086,6 @@ fun PlaylistDrawer(
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
 
 private fun formatTime(ms: Long): String {
     val s = ms / 1000

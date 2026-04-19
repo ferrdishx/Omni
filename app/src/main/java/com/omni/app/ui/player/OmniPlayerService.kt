@@ -15,7 +15,7 @@ class OmniPlayerService : MediaSessionService() {
         super.onCreate()
         val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(this)
             .setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
-        
+
         val player = ExoPlayer.Builder(this, renderersFactory).build()
         mediaSession = MediaSession.Builder(this, player).build()
     }

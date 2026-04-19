@@ -2,7 +2,6 @@ package com.omni.app.ui.downloads
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -62,14 +61,14 @@ fun DownloadsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
-                        "Downloads", 
+                        "Downloads",
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontSize = MaterialTheme.typography.headlineSmall.fontSize * dimensions.titleSize
                         )
-                    ) 
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -88,14 +87,14 @@ fun DownloadsScreen(
         ) {
             if (activeDownloads.isNotEmpty()) {
                 val batchGroups = activeDownloads.groupBy { it.batchId }.filterKeys { it != null }
-                
+
                 if (batchGroups.isNotEmpty()) {
                     items(batchGroups.keys.toList().filterNotNull()) { batchId ->
                         val items = batchGroups[batchId] ?: emptyList()
                         val completedCount = items.count { it.status == DownloadStatus.COMPLETED }
                         val totalCount = items.size
                         val avgProgress = items.map { it.progress }.average().toFloat() / 100f
-                        
+
                         BatchProgressHeader(
                             completedCount = completedCount,
                             totalCount = totalCount,
@@ -175,7 +174,7 @@ fun BatchProgressHeader(
             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
         ),
         border = androidx.compose.foundation.BorderStroke(
-            1.dp, 
+            1.dp,
             MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
         )
     ) {
@@ -204,9 +203,9 @@ fun BatchProgressHeader(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             Spacer(Modifier.height(12.dp))
-            
+
             LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier
@@ -278,7 +277,7 @@ fun ActiveDownloadItem(item: DownloadItem, settings: OmniPreferences, onCancel: 
                         progress = { item.progress / 100f },
                         modifier = Modifier.fillMaxSize(),
                     )
-                    
+
                     if (item.status == DownloadStatus.DOWNLOADING && !settings.reduceAnimations) {
                         ShimmerProgress(Modifier.fillMaxSize())
                     }
@@ -286,9 +285,9 @@ fun ActiveDownloadItem(item: DownloadItem, settings: OmniPreferences, onCancel: 
                 if (!isCompact || settings.showDetailedInfo) {
                     Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(
-                            if (item.progress <= 0f && item.status == DownloadStatus.DOWNLOADING) "Starting download..." 
-                            else "${item.progress.toInt()}%", 
-                            style = MaterialTheme.typography.labelSmall, 
+                            if (item.progress <= 0f && item.status == DownloadStatus.DOWNLOADING) "Starting download..."
+                            else "${item.progress.toInt()}%",
+                            style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )
                         if (settings.showDetailedInfo) {
@@ -332,9 +331,9 @@ fun CompletedMediaItem(media: DownloadedMedia, settings: OmniPreferences, onClic
                     .background(Color.DarkGray)
             ) {
                 val model = remember(media.thumbnailUrl, media.filePath, settings.lowPerfMode, settings.reduceAnimations) {
-                    val thumbFile = if (media.thumbnailUrl != null && !media.thumbnailUrl.startsWith("http")) 
+                    val thumbFile = if (media.thumbnailUrl != null && !media.thumbnailUrl.startsWith("http"))
                         File(media.thumbnailUrl) else null
-                    
+
                     ImageRequest.Builder(context)
                         .data(
                             when {
@@ -349,11 +348,11 @@ fun CompletedMediaItem(media: DownloadedMedia, settings: OmniPreferences, onClic
                                 decoderFactory(VideoFrameDecoder.Factory())
                                 setParameter("coil#video_frame_micros", 2000000L)
                             }
-                            
+
                             if (settings.lowPerfMode) {
                                 size(200, 200)
                             }
-                            
+
                             if (settings.reduceAnimations) {
                                 crossfade(false)
                             } else {
@@ -379,7 +378,7 @@ fun CompletedMediaItem(media: DownloadedMedia, settings: OmniPreferences, onClic
                         )
                     }
                 )
-                
+
                 if (media.timestamp > System.currentTimeMillis() - 60000) {
                     Box(
                         modifier = Modifier
@@ -395,16 +394,16 @@ fun CompletedMediaItem(media: DownloadedMedia, settings: OmniPreferences, onClic
             Spacer(Modifier.width(if (isCompact) 8.dp else 12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    media.title, 
-                    maxLines = if (isCompact) 1 else 2, 
-                    overflow = TextOverflow.Ellipsis, 
-                    fontWeight = FontWeight.Medium, 
+                    media.title,
+                    maxLines = if (isCompact) 1 else 2,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Medium,
                     fontSize = (if (isCompact) 13.sp else 14.sp) * dimensions.titleSize
                 )
                 Text(
-                    if (media.isAudio) "Audio" else "Video", 
-                    style = MaterialTheme.typography.bodySmall, 
-                    color = Color.Gray, 
+                    if (media.isAudio) "Audio" else "Video",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
                     fontSize = (if (isCompact) 11.sp else 12.sp) * dimensions.titleSize
                 )
                 if (settings.showDetailedInfo) {
@@ -417,13 +416,13 @@ fun CompletedMediaItem(media: DownloadedMedia, settings: OmniPreferences, onClic
                     )
                 }
             }
-            
+
             Box {
                 IconButton(onClick = { showMenu = true }, modifier = Modifier.size(dimensions.iconSize * 1.5f)) {
                     Icon(
-                        Icons.Rounded.CheckCircle, 
-                        contentDescription = "Options", 
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f), 
+                        Icons.Rounded.CheckCircle,
+                        contentDescription = "Options",
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                         modifier = Modifier.size(dimensions.iconSize)
                     )
                 }

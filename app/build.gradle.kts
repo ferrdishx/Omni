@@ -26,22 +26,6 @@ android {
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
         }
-
-        buildConfigField("boolean", "ENABLE_ENGINE_UPDATE", "true")
-    }
-
-    flavorDimensions += "distribution"
-
-    productFlavors {
-        create("standard") {
-            dimension = "distribution"
-            buildConfigField("boolean", "ENABLE_ENGINE_UPDATE", "true")
-        }
-        create("fdroid") {
-            dimension = "distribution"
-            applicationIdSuffix = ""
-            buildConfigField("boolean", "ENABLE_ENGINE_UPDATE", "false")
-        }
     }
 
     buildTypes {
@@ -61,7 +45,6 @@ android {
 
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 
     packaging {
@@ -94,6 +77,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.ui.text)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)

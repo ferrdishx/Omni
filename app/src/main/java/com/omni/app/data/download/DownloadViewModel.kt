@@ -7,7 +7,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.omni.app.OmniApp
 import kotlinx.coroutines.Dispatchers
@@ -20,14 +19,14 @@ class DownloadViewModel(app: Application) : AndroidViewModel(app) {
     private val repo = (app as OmniApp).downloadRepository
 
     val downloads: StateFlow<List<DownloadItem>> = repo.downloads
-    
+
     val activeDownloads: StateFlow<List<DownloadItem>> = repo.downloads
-        .map { list -> 
-            list.filter { it.status !in listOf(DownloadStatus.COMPLETED, DownloadStatus.CANCELLED) } 
+        .map { list ->
+            list.filter { it.status !in listOf(DownloadStatus.COMPLETED, DownloadStatus.CANCELLED) }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val completedMedia: StateFlow<List<DownloadedMedia>> = 
+    val completedMedia: StateFlow<List<DownloadedMedia>> =
         repo.completedMedia.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     private val _scannedFiles = MutableStateFlow<List<DownloadedMedia>>(emptyList())
@@ -76,9 +75,9 @@ class DownloadViewModel(app: Application) : AndroidViewModel(app) {
 
     val ytdlpSetupProgress: StateFlow<Float?> = repo.ytdlpSetupProgress
 
-    init { 
+    init {
         repo.ensureYtDlp()
-        
+
         viewModelScope.launch {
             repo.completedMedia.collect {
                 refreshScannedFiles()
@@ -92,7 +91,7 @@ class DownloadViewModel(app: Application) : AndroidViewModel(app) {
     fun remove(id: String)          = repo.remove(id)
 
     fun deleteMedia(item: DownloadedMedia) {
-        viewModelScope.launch { 
+        viewModelScope.launch {
             repo.deleteMedia(item)
             refreshScannedFiles()
         }
@@ -104,7 +103,7 @@ class DownloadViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val context = getApplication<Application>()
-                
+
                 val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val video = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED
                     val audio = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
@@ -141,12 +140,12 @@ class DownloadViewModel(app: Application) : AndroidViewModel(app) {
                         val omniDir = file.parentFile?.parentFile
                         val thumbVideoDir = File(omniDir, ".thumbnails")
                         val thumbAudioDir = File(omniDir, ".thumbaudio")
-                        
+
                         val localThumb = File(file.parent, "$nameNoExt.jpg").takeIf { it.exists() }
                             ?: File(file.parent, "$nameNoExt.png").takeIf { it.exists() }
                             ?: File(thumbVideoDir, "$nameNoExt.jpg").takeIf { it.exists() }
                             ?: File(thumbAudioDir, "$nameNoExt.jpg").takeIf { it.exists() }
-                        
+
                         DownloadedMedia(
                             id = file.absolutePath,
                             title = file.name,
@@ -162,7 +161,6 @@ class DownloadViewModel(app: Application) : AndroidViewModel(app) {
 
                 _scannedFiles.value = resultList
             } catch (e: Exception) {
-                Log.e("Omni", "Error in refreshScannedFiles", e)
             }
         }
     }

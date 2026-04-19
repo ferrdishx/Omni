@@ -52,7 +52,6 @@ fun LiquidNavigationBar(
     val selectedIndex = items.indexOfFirst { it.route == selectedRoute }.coerceAtLeast(0)
     val isLowPerf = settings.lowPerfMode
 
-    // Pixel-space animation with spring (gives velocity for the liquid stretch)
     val animIndex = remember { Animatable(selectedIndex.toFloat()) }
     LaunchedEffect(selectedIndex) {
         if (isLowPerf) {
@@ -71,7 +70,6 @@ fun LiquidNavigationBar(
             .padding(horizontal = 16.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        // ── Layer 1: Blurred backdrop (API 31+, degrades gracefully below) ────
         if (!isLowPerf) {
             Box(
                 modifier = Modifier
@@ -89,7 +87,6 @@ fun LiquidNavigationBar(
             )
         }
 
-        // ── Layer 2: Solid background + border ─────────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -103,7 +100,6 @@ fun LiquidNavigationBar(
                 )
         )
 
-        // ── Layer 3: Pill + Icons ─────────────────────────────────────────────
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
@@ -112,7 +108,6 @@ fun LiquidNavigationBar(
             val density    = LocalDensity.current
             val tabWidthPx = constraints.maxWidth.toFloat() / items.size
 
-            // Velocity-driven stretch (liquid feel, no external library needed)
             val pillScaleX by remember(isLowPerf) {
                 derivedStateOf {
                     if (isLowPerf) 1f else {
@@ -129,7 +124,6 @@ fun LiquidNavigationBar(
                 }
             }
 
-            // Pill indicator
             Box(
                 modifier = Modifier
                     .graphicsLayer {
@@ -140,7 +134,6 @@ fun LiquidNavigationBar(
                     }
                     .width(with(density) { tabWidthPx.toDp() })
                     .fillMaxHeight()
-                    // KEY FIX: asymmetric padding so the pill fits the tab nicely
                     .padding(horizontal = 8.dp, vertical = 6.dp)
                     .clip(RoundedCornerShape(22.dp))
                     .background(
@@ -163,10 +156,8 @@ fun LiquidNavigationBar(
                     )
             )
 
-            // Icons + labels
             Row(modifier = Modifier.fillMaxSize()) {
                 items.forEachIndexed { index, item ->
-                    // 1.0 when selected, smooth falloff with distance
                     val progress = if (isLowPerf) {
                         if (index == selectedIndex) 1f else 0f
                     } else {
@@ -207,7 +198,6 @@ fun LiquidNavigationBar(
                                 tint              = lerp(unselected, accentColor, progress),
                                 modifier          = Modifier.size(24.dp)
                             )
-                            // Label shown when pill is close, without alpha fade
                             if (progress > 0.5f) {
                                 Text(
                                     text          = item.label,

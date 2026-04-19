@@ -48,7 +48,7 @@ fun PlaylistDownloadSheet(
     var playlistInfo by remember { mutableStateOf<PlaylistInfo?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var selectedItems by remember { mutableStateOf(setOf<Int>()) }
-    
+
     var downloadType by remember { mutableStateOf(initialType) }
     var selectedQuality by remember { mutableStateOf(if (initialType == DownloadType.VIDEO) settings.videoQuality else settings.audioQuality) }
     var selectedFormat by remember { mutableStateOf(if (initialType == DownloadType.VIDEO) settings.videoFormat else settings.audioFormat) }
@@ -68,8 +68,8 @@ fun PlaylistDownloadSheet(
     LaunchedEffect(url) {
         isLoading = true
         playlistInfo = YtDlpManager.fetchPlaylistInfo(url, context)
-        playlistInfo?.let { 
-            selectedItems = it.entries.indices.toSet() 
+        playlistInfo?.let {
+            selectedItems = it.entries.indices.toSet()
         }
         isLoading = false
     }
@@ -113,7 +113,7 @@ fun PlaylistDownloadSheet(
                 ) {
                     FilterChip(
                         selected = downloadType == DownloadType.VIDEO,
-                        onClick = { 
+                        onClick = {
                             downloadType = DownloadType.VIDEO
                             selectedQuality = settings.videoQuality
                             selectedFormat = settings.videoFormat
@@ -123,7 +123,7 @@ fun PlaylistDownloadSheet(
                     )
                     FilterChip(
                         selected = downloadType == DownloadType.AUDIO,
-                        onClick = { 
+                        onClick = {
                             downloadType = DownloadType.AUDIO
                             selectedQuality = settings.audioQuality
                             selectedFormat = settings.audioFormat
@@ -157,10 +157,10 @@ fun PlaylistDownloadSheet(
                             }
                         }
                         DropdownMenu(expanded = showQualityMenu, onDismissRequest = { showQualityMenu = false }) {
-                            val options = if (downloadType == DownloadType.VIDEO) 
+                            val options = if (downloadType == DownloadType.VIDEO)
                                 listOf("Best available", "4K (2160p)", "1440p", "1080p", "720p", "480p", "360p")
                             else listOf("320kbps", "256kbps", "192kbps", "128kbps")
-                            
+
                             options.forEach { opt ->
                                 DropdownMenuItem(
                                     text = { Text(opt) },
@@ -226,7 +226,7 @@ fun PlaylistDownloadSheet(
                     val displayedCount = filteredEntries.size
                     Text("Select Videos ($displayedCount)", style = MaterialTheme.typography.titleMedium)
                     TextButton(onClick = {
-                        val filteredIndices = playlistInfo!!.entries.indices.filter { 
+                        val filteredIndices = playlistInfo!!.entries.indices.filter {
                             val item = playlistInfo!!.entries[it]
                             when (durationFilter) {
                                 "< 5 min" -> item.duration < 300
@@ -243,7 +243,7 @@ fun PlaylistDownloadSheet(
                             selectedItems + filteredIndices
                         }
                     }) {
-                        val filteredIndices = playlistInfo!!.entries.indices.filter { 
+                        val filteredIndices = playlistInfo!!.entries.indices.filter {
                             val item = playlistInfo!!.entries[it]
                             when (durationFilter) {
                                 "< 5 min" -> item.duration < 300
@@ -266,7 +266,7 @@ fun PlaylistDownloadSheet(
                         val item = filteredEntries[index]
                         val originalIndex = playlistInfo!!.entries.indexOf(item)
                         val isSelected = selectedItems.contains(originalIndex)
-                        
+
                         PlaylistItemRow(
                             item = item,
                             isSelected = isSelected,
@@ -305,7 +305,7 @@ fun PlaylistDownloadSheet(
                 ) {
                     Icon(Icons.Rounded.Download, null)
                     Spacer(Modifier.width(12.dp))
-                    
+
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Download ${selectedItems.size} items", fontWeight = FontWeight.Bold)
                         val estimatedSize = estimateSize(selectedItems.size, downloadType, selectedQuality)
@@ -343,11 +343,11 @@ fun PlaylistItemRow(
     onToggle: () -> Unit
 ) {
     val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f) 
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
                       else Color.Transparent,
         label = "bgColor"
     )
-    
+
     val elevation by animateDpAsState(
         targetValue = if (isSelected) 4.dp else 0.dp,
         label = "elevation"
@@ -376,7 +376,7 @@ fun PlaylistItemRow(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                
+
                 if (item.duration > 0) {
                     Surface(
                         modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp),
@@ -405,8 +405,8 @@ fun PlaylistItemRow(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Rounded.CheckCircle, 
-                            contentDescription = null, 
+                            Icons.Rounded.CheckCircle,
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.background(Color.White, CircleShape)
                         )
@@ -433,7 +433,7 @@ fun PlaylistItemRow(
             }
 
             Checkbox(
-                checked = isSelected, 
+                checked = isSelected,
                 onCheckedChange = { onToggle() },
                 colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
             )

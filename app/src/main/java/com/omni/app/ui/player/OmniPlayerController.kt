@@ -118,7 +118,7 @@ class OmniPlayerController(private val context: Context) {
             _duration.value = controller?.duration?.coerceAtLeast(0L) ?: 0L
             _shuffleModeEnabled.value = controller?.shuffleModeEnabled ?: false
             _repeatMode.value = controller?.repeatMode ?: Player.REPEAT_MODE_OFF
-            
+
             if (controller?.isPlaying == true) {
                 startProgressUpdate()
             }
@@ -191,7 +191,6 @@ class OmniPlayerController(private val context: Context) {
         _mediaController.value?.let {
             val nextMode = !it.shuffleModeEnabled
             it.shuffleModeEnabled = nextMode
-            // Força o estado a atualizar para o UI
             _shuffleModeEnabled.value = nextMode
         }
     }
@@ -237,7 +236,7 @@ class OmniPlayerController(private val context: Context) {
 
         val totalMs = minutes * 60 * 1000L
         val endTime = System.currentTimeMillis() + totalMs
-        
+
         sleepTimerJob = scope.launch {
             while (System.currentTimeMillis() < endTime) {
                 _sleepTimerRemaining.value = (endTime - System.currentTimeMillis()).coerceAtLeast(0L)

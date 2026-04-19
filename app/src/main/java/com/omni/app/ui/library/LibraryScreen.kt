@@ -2,7 +2,6 @@ package com.omni.app.ui.library
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -55,7 +54,7 @@ fun LibraryScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val sortOrder by viewModel.sortOrder.collectAsState()
     val typeFilter by viewModel.typeFilter.collectAsState()
-    
+
     val context = LocalContext.current
     val prefs = remember { UserPreferences(context) }
     val settings by prefs.preferences.collectAsState(initial = OmniPreferences())
@@ -67,7 +66,7 @@ fun LibraryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     if (isSearching) {
                         TextField(
                             value = searchQuery,
@@ -82,9 +81,9 @@ fun LibraryScreen(
                             ),
                             singleLine = true,
                             trailingIcon = {
-                                IconButton(onClick = { 
+                                IconButton(onClick = {
                                     viewModel.setSearchQuery("")
-                                    isSearching = false 
+                                    isSearching = false
                                 }) {
                                     Icon(Icons.Rounded.Close, null)
                                 }
@@ -92,7 +91,7 @@ fun LibraryScreen(
                         )
                     } else {
                         Text(
-                            "Library", 
+                            "Library",
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.headlineSmall.copy(
                                 fontSize = MaterialTheme.typography.headlineSmall.fontSize * dimensions.titleSize
@@ -105,7 +104,7 @@ fun LibraryScreen(
                         IconButton(onClick = { isSearching = true }) {
                             Icon(Icons.Rounded.Search, "Search")
                         }
-                        
+
                         var showSortMenu by remember { mutableStateOf(false) }
                         IconButton(onClick = { showSortMenu = true }) {
                             Icon(Icons.Rounded.FilterList, "Sort & Filter")
@@ -124,11 +123,11 @@ fun LibraryScreen(
                             listOf("Date" to "Date added", "Name" to "Title", "Size" to "File size").forEach { (key, label) ->
                                 DropdownMenuItem(
                                     text = { Text(label) },
-                                    onClick = { 
+                                    onClick = {
                                         viewModel.setSortOrder(key)
-                                        showSortMenu = false 
+                                        showSortMenu = false
                                     },
-                                    leadingIcon = { 
+                                    leadingIcon = {
                                         if (sortOrder == key) Icon(Icons.Rounded.Check, null, tint = MaterialTheme.colorScheme.primary)
                                         else Spacer(Modifier.size(24.dp))
                                     }
@@ -136,7 +135,7 @@ fun LibraryScreen(
                             }
 
                             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                            
+
                             Text(
                                 "  Filter",
                                 style = MaterialTheme.typography.labelSmall,
@@ -146,11 +145,11 @@ fun LibraryScreen(
                             listOf("All" to "All Media", "Audio" to "Audio only", "Video" to "Video only").forEach { (key, label) ->
                                 DropdownMenuItem(
                                     text = { Text(label) },
-                                    onClick = { 
+                                    onClick = {
                                         viewModel.setTypeFilter(key)
-                                        showSortMenu = false 
+                                        showSortMenu = false
                                     },
-                                    leadingIcon = { 
+                                    leadingIcon = {
                                         if (typeFilter == key) Icon(Icons.Rounded.Check, null, tint = MaterialTheme.colorScheme.primary)
                                         else {
                                             when(key) {
@@ -172,9 +171,9 @@ fun LibraryScreen(
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
-                        Icons.Rounded.FolderOpen, 
-                        contentDescription = null, 
-                        modifier = Modifier.size(60.dp * dimensions.titleSize), 
+                        Icons.Rounded.FolderOpen,
+                        contentDescription = null,
+                        modifier = Modifier.size(60.dp * dimensions.titleSize),
                         tint = Color.Gray
                     )
                     Spacer(Modifier.height(16.dp * dimensions.titleSize))
@@ -187,15 +186,15 @@ fun LibraryScreen(
                 "Expanded" -> GridCells.Adaptive(200.dp)
                 else -> GridCells.Adaptive(160.dp)
             }
-            
+
             LazyVerticalGrid(
                 state = gridState,
                 columns = columns,
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(
-                    start = dimensions.gridSpacing, 
-                    top = dimensions.gridSpacing, 
-                    end = dimensions.gridSpacing, 
+                    start = dimensions.gridSpacing,
+                    top = dimensions.gridSpacing,
+                    end = dimensions.gridSpacing,
                     bottom = dimensions.gridSpacing + 170.dp
                 ),
                 horizontalArrangement = Arrangement.spacedBy(dimensions.gridSpacing),
@@ -253,11 +252,9 @@ fun MediaGridItem(media: DownloadedMedia, settings: OmniPreferences, isFavorite:
         ) {
             val model = remember(media.thumbnailUrl, media.filePath, settings.lowPerfMode, settings.reduceAnimations) {
                 val thumbFile = if (media.thumbnailUrl != null) File(media.thumbnailUrl) else null
-                
-                // 1. Tenta encontrar a thumbnail na pasta .thumbaudios ou .thumbaudio
+
                 val resolvedThumbFile = when {
                     thumbFile?.exists() == true -> {
-                        Log.d("OmniThumb", "Usando thumb do DB: ${thumbFile.absolutePath}")
                         thumbFile
                     }
                     else -> {
@@ -265,20 +262,17 @@ fun MediaGridItem(media: DownloadedMedia, settings: OmniPreferences, isFavorite:
                         val downloadDir = file.parentFile
                         val baseName = file.nameWithoutExtension
                         val possibleFolders = listOf(".thumbaudio", ".thumbaudios")
-                        
+
                         var found: File? = null
                         for (folder in possibleFolders) {
-                            // Tenta no diretório Omni (um nível acima) ou no diretório atual
                             val folderPaths = listOf(
                                 File(downloadDir, folder),
                                 File(downloadDir?.parentFile, folder)
                             )
-                            
+
                             for (folderPath in folderPaths) {
                                 val f = File(folderPath, "$baseName.jpg")
-                                Log.d("OmniThumb", "Procurando em: ${f.absolutePath}")
                                 if (f.exists()) {
-                                    Log.d("OmniThumb", "✓ Encontrada em: ${f.absolutePath}")
                                     found = f
                                     break
                                 }
@@ -290,24 +284,21 @@ fun MediaGridItem(media: DownloadedMedia, settings: OmniPreferences, isFavorite:
                 }
 
                 if (resolvedThumbFile == null) {
-                    Log.w("OmniThumb", "✗ Nenhuma thumb encontrada para: ${media.title}. Usando fallback do arquivo.")
                 }
 
                 ImageRequest.Builder(context)
-                    // 2. Se não achou na pasta, usa o arquivo de mídia (Coil extrai arte do áudio/vídeo automaticamente)
                     .data(resolvedThumbFile ?: File(media.filePath))
                     .apply {
                         if (media.isAudio) {
-                            // Deixa o Coil extrair a arte ID3 do áudio
                         } else {
                             decoderFactory(VideoFrameDecoder.Factory())
                             setParameter("coil#video_frame_micros", 2000000L)
                         }
-                        
+
                         if (settings.lowPerfMode) {
                             size(200, 200)
                         }
-                        
+
                         if (settings.reduceAnimations) {
                             crossfade(false)
                         } else {
@@ -335,7 +326,6 @@ fun MediaGridItem(media: DownloadedMedia, settings: OmniPreferences, isFavorite:
                 }
             )
 
-            // Favorite heart overlay
             val favoriteScale by animateFloatAsState(
                 targetValue = if (isFavorite) 1.2f else 0f,
                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
@@ -370,9 +360,9 @@ fun MediaGridItem(media: DownloadedMedia, settings: OmniPreferences, isFavorite:
                 )
             }
         }
-        
+
         Spacer(Modifier.height(dimensions.gridSpacing / 2))
-        
+
         Row(
             verticalAlignment = Alignment.Top,
             modifier = Modifier.padding(horizontal = 4.dp)
@@ -410,18 +400,18 @@ fun MediaGridItem(media: DownloadedMedia, settings: OmniPreferences, isFavorite:
                 modifier = Modifier.size(dimensions.iconSize)
             ) {
                 Icon(
-                    Icons.Rounded.MoreVert, 
-                    contentDescription = "Menu", 
-                    tint = Color.Gray, 
+                    Icons.Rounded.MoreVert,
+                    contentDescription = "Menu",
+                    tint = Color.Gray,
                     modifier = Modifier.size(dimensions.iconSize * 0.7f)
                 )
                 DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                     DropdownMenuItem(
                         text = { Text(if (isFavorite) "Remove from favorites" else "Add to favorites") },
                         onClick = { showMenu = false; onFavoriteToggle() },
-                        leadingIcon = { 
+                        leadingIcon = {
                             Icon(
-                                if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder, 
+                                if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                                 contentDescription = null,
                                 tint = if (isFavorite) androidx.compose.ui.graphics.Color.Red else androidx.compose.ui.graphics.Color.Gray
                             )

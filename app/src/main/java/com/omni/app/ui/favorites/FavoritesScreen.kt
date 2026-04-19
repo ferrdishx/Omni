@@ -79,7 +79,6 @@ fun FavoritesScreen(
                     }
                 },
                 actions = {
-                    // Search toggle
                     IconButton(onClick = {
                         searchActive = !searchActive
                         if (!searchActive) vm.setQuery("")
@@ -90,19 +89,16 @@ fun FavoritesScreen(
                         )
                     }
 
-                    // Filter chips toggle
                     IconButton(onClick = { showSortMenu = true }) {
                         Icon(Icons.Rounded.FilterList, contentDescription = "Sort & Filter")
                     }
 
-                    // Clear all
                     if (favorites.isNotEmpty()) {
                         IconButton(onClick = { showClearDialog = true }) {
                             Icon(Icons.Rounded.DeleteSweep, contentDescription = "Clear all")
                         }
                     }
 
-                    // Sort dropdown
                     DropdownMenu(expanded = showSortMenu, onDismissRequest = { showSortMenu = false }) {
                         Text("  Sort by", style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
@@ -155,7 +151,6 @@ fun FavoritesScreen(
         }
     ) { padding ->
 
-        // Active filter chips
         val hasFilter = state.filterAudio || state.filterVideo || state.query.isNotBlank()
         AnimatedVisibility(visible = hasFilter) {
             Row(
@@ -174,7 +169,6 @@ fun FavoritesScreen(
         }
 
         if (favorites.isEmpty()) {
-            // Empty state
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center
@@ -237,7 +231,6 @@ fun FavoritesScreen(
         }
     }
 
-    // Clear all dialog
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
@@ -312,7 +305,6 @@ fun FavoriteCard(item: FavoriteItem, settings: OmniPreferences, onClick: () -> U
                 }
             )
 
-            // Type badge
             Surface(
                 modifier = Modifier.align(Alignment.BottomStart).padding(6.dp),
                 color = Color.Black.copy(alpha = 0.65f), shape = RoundedCornerShape(4.dp)
@@ -322,12 +314,10 @@ fun FavoriteCard(item: FavoriteItem, settings: OmniPreferences, onClick: () -> U
                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp))
             }
 
-            // Heart icon (filled, always — it's a favorite)
             Icon(Icons.Rounded.Favorite, null,
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).size(18.dp))
 
-            // Menu button
             Box(modifier = Modifier.align(Alignment.TopStart)) {
                 IconButton(onClick = { showMenu = true }, modifier = Modifier.size(36.dp)) {
                     Icon(Icons.Rounded.MoreVert, null,

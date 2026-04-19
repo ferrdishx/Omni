@@ -1,6 +1,5 @@
 package com.omni.app.ui.home
 
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
@@ -30,10 +29,6 @@ private const val TAG = "DownloadFormatSheet"
 
 enum class QualityMode { DATA_SAVER, BALANCED, HIGH_QUALITY }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Main sheet
-// ─────────────────────────────────────────────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DownloadFormatSheet(
@@ -47,45 +42,35 @@ fun DownloadFormatSheet(
     val scope   = rememberCoroutineScope()
     val context = LocalContext.current
 
-    // ── Video info ─────────────────────────────────────────────────────────
     var videoInfo  by remember { mutableStateOf<YtDlpManager.VideoInfo?>(null) }
     var fetchState by remember { mutableStateOf("idle") }
 
-    // ── Tab ───────────────────────────────────────────────────────────────
     var selectedTab by remember { mutableIntStateOf(0) }
 
-    // ── Tab 0 – Format ────────────────────────────────────────────────────
     var selectedQuality by remember { mutableStateOf(if (type == "video") settings.videoQuality else settings.audioQuality) }
     var selectedFormat  by remember { mutableStateOf(if (type == "video") settings.videoFormat  else settings.audioFormat) }
     var prefer60fps     by remember { mutableStateOf(settings.prefer60fps) }
     var embedThumb      by remember { mutableStateOf(settings.embedThumbnail) }
     var selectedMode    by remember { mutableStateOf(QualityMode.BALANCED) }
 
-    // ── Tab 1 – Options ───────────────────────────────────────────────────
-    // Subtitles
     var embedSubtitles  by remember { mutableStateOf(settings.embedSubtitles) }
     var subtitleLang    by remember { mutableStateOf(settings.subtitleLanguage) }
     var subtitleFmt     by remember { mutableStateOf(settings.subtitleFormat) }
     var autoSubs        by remember { mutableStateOf(settings.autoSubtitles) }
-    // Chapters & Metadata
     var embedChapters   by remember { mutableStateOf(settings.embedChapters) }
     var splitChapters   by remember { mutableStateOf(settings.splitByChapters) }
     var writeMetadata   by remember { mutableStateOf(settings.writeMetadata) }
-    // SponsorBlock
     var sponsorBlock    by remember { mutableStateOf(settings.sponsorBlockEnabled) }
     var sbCategories    by remember {
         mutableStateOf(settings.sponsorBlockCategories.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
             .ifEmpty { setOf("sponsor") })
     }
     var sbAction        by remember { mutableStateOf(SponsorBlockAction.entries.find { it.label == settings.sponsorBlockAction } ?: SponsorBlockAction.SKIP) }
-    // Time range
     var startTime       by remember { mutableStateOf("") }
     var endTime         by remember { mutableStateOf("") }
-    // Audio only
     var normalizeAudio  by remember { mutableStateOf(settings.normalizeAudio) }
     var trimSilence     by remember { mutableStateOf(settings.trimSilence) }
 
-    // ── Tab 2 – Advanced ──────────────────────────────────────────────────
     var cookieSource    by remember { mutableStateOf(CookieSource.entries.find { it.label == settings.cookieSource } ?: CookieSource.NONE) }
     var speedLimit      by remember { mutableStateOf(settings.speedLimit) }
     var proxy           by remember { mutableStateOf(settings.proxy) }
@@ -93,13 +78,10 @@ fun DownloadFormatSheet(
     var outputTemplate  by remember { mutableStateOf(settings.outputTemplate) }
     var customArgs      by remember { mutableStateOf("") }
 
-    // ── Computed formats ───────────────────────────────────────────────────
     val processedFormats = remember(videoInfo, prefer60fps, type) {
         if (type == "video" && videoInfo != null) {
             val allFormats = videoInfo!!.availableFormats
-            Log.d(TAG, "📊 Formatos brutos recebidos: ${allFormats.size}")
             allFormats.forEach { fmt ->
-                Log.d(TAG, "  - ${fmt.label} (height=${fmt.height}, fps=${fmt.fps}, ext=${fmt.ext})")
             }
 
             val filtered = allFormats
@@ -108,10 +90,7 @@ fun DownloadFormatSheet(
                     .thenByDescending { val hi = (it.fps ?: 0) >= 50; if (prefer60fps) hi else !hi })
                 .distinctBy { it.label }
                 .sortedByDescending { it.height }
-
-            Log.d(TAG, "📊 Formatos após processamento: ${filtered.size}")
             filtered.forEach { fmt ->
-                Log.d(TAG, "  - ${fmt.label} (height=${fmt.height}, fps=${fmt.fps})")
             }
 
             filtered
@@ -124,10 +103,7 @@ fun DownloadFormatSheet(
         else -> AUDIO_QUALITIES
     }
 
-    // Log das qualidades que serão exibidas no UI
-    Log.d(TAG, "🎯 Qualidades disponíveis no UI: ${availableQualities.size}")
     availableQualities.forEach { quality ->
-        Log.d(TAG, "  - UI: $quality")
     }
 
     val selectByMode: (QualityMode) -> Unit = remember(processedFormats) {
@@ -157,7 +133,6 @@ fun DownloadFormatSheet(
         if (type == "video" && fetchState == "done") selectByMode(selectedMode)
     }
 
-    // ─────────────────────────────────────────────────────────────────────
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -169,7 +144,6 @@ fun DownloadFormatSheet(
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 40.dp)
         ) {
-            // ── Header ──────────────────────────────────────────────────────
             Row(
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -197,7 +171,6 @@ fun DownloadFormatSheet(
                 }
             }
 
-            // Playlist hint
             if (onViewPlaylist != null) {
                 Spacer(Modifier.height(8.dp))
                 Surface(
@@ -218,7 +191,6 @@ fun DownloadFormatSheet(
                 }
             }
 
-            // Fetching info indicator
             AnimatedVisibility(visible = fetchState == "loading") {
                 Row(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
@@ -232,7 +204,6 @@ fun DownloadFormatSheet(
 
             Spacer(Modifier.height(4.dp))
 
-            // ── Tab row ──────────────────────────────────────────────────────
             SecondaryTabRow(selectedTabIndex = selectedTab) {
                 Tab(
                     selected = selectedTab == 0,
@@ -256,7 +227,6 @@ fun DownloadFormatSheet(
 
             Spacer(Modifier.height(16.dp))
 
-            // ── Tab content ──────────────────────────────────────────────────
             AnimatedContent(
                 targetState = selectedTab,
                 transitionSpec = { fadeIn(tween(250)) togetherWith fadeOut(tween(200)) },
@@ -302,7 +272,6 @@ fun DownloadFormatSheet(
                 }
             }
 
-            // ── Download button ──────────────────────────────────────────────
             Spacer(Modifier.height(20.dp))
             Button(
                 onClick = {
@@ -319,7 +288,6 @@ fun DownloadFormatSheet(
                             format         = selectedFormat,
                             prefer60fps    = prefer60fps,
                             embedThumbnail = embedThumb,
-                            // Options
                             embedSubtitles = embedSubtitles,
                             subtitleLanguage = subtitleLang,
                             subtitleFormat = subtitleFmt,
@@ -334,7 +302,6 @@ fun DownloadFormatSheet(
                             endTime        = endTime,
                             normalizeAudio = normalizeAudio,
                             trimSilence    = trimSilence,
-                            // Advanced
                             cookieSource   = cookieSource,
                             speedLimit     = speedLimit,
                             proxy          = proxy,
@@ -342,7 +309,6 @@ fun DownloadFormatSheet(
                             outputTemplate = outputTemplate,
                             customArgs     = customArgs
                         )
-                        Log.d("OmniDebug", "Enqueuing: ${item.title}")
                         vm.enqueue(item)
                         onDismiss()
                     }
@@ -360,10 +326,6 @@ fun DownloadFormatSheet(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Tab 0 – Format
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun FormatTab(
     type: String,
@@ -380,7 +342,6 @@ private fun FormatTab(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Quality mode chips (video only)
         if (type == "video") {
             SectionLabel("Quality Mode")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -390,7 +351,6 @@ private fun FormatTab(
             }
         }
 
-        // Quality
         SectionLabel("Quality")
         if (type == "video" && fetchState == "loading") {
             Surface(
@@ -408,14 +368,11 @@ private fun FormatTab(
             ChipGroup(options = availableQualities, selected = selectedQuality, onSelect = onQualityChange)
         }
 
-        // Format
         SectionLabel("Container")
         ChipGroup(options = formats, selected = selectedFormat, onSelect = onFormatChange)
 
-        // Format info card
         FormatInfoCard(type = type, format = selectedFormat, quality = selectedQuality)
 
-        // Toggles
         if (type == "video") {
             OptionToggleRow(
                 icon = Icons.Rounded.Speed,
@@ -435,10 +392,6 @@ private fun FormatTab(
         )
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Tab 1 – Options
-// ─────────────────────────────────────────────────────────────────────────────
 
 private val SUBTITLE_LANGUAGES = listOf("en", "pt", "es", "fr", "de", "it", "ja", "ko", "zh", "ar", "ru", "auto")
 private val SUBTITLE_FORMATS   = listOf("srt", "vtt", "ass", "lrc", "json3")
@@ -476,7 +429,6 @@ private fun OptionsTab(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // ── Subtitles ──────────────────────────────────────────────────────
         OptionsSectionHeader("Subtitles", Icons.Rounded.Subtitles)
 
         OptionToggleRow(
@@ -507,7 +459,6 @@ private fun OptionsTab(
 
         OptionsDivider()
 
-        // ── Chapters & Metadata ────────────────────────────────────────────
         OptionsSectionHeader("Chapters & Metadata", Icons.Rounded.BookmarkBorder)
 
         OptionToggleRow(
@@ -554,7 +505,6 @@ private fun OptionsTab(
 
         OptionsDivider()
 
-        // ── SponsorBlock (video only) ──────────────────────────────────────
         if (type == "video") {
             OptionsSectionHeader("SponsorBlock", Icons.Rounded.Block)
 
@@ -607,7 +557,6 @@ private fun OptionsTab(
             OptionsDivider()
         }
 
-        // ── Time range ─────────────────────────────────────────────────────
         OptionsSectionHeader("Time Range", Icons.Rounded.Schedule)
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -639,7 +588,6 @@ private fun OptionsTab(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        // ── Audio post-processing (audio only) ────────────────────────────
         if (type == "audio") {
             OptionsDivider()
             OptionsSectionHeader("Audio Processing", Icons.Rounded.Equalizer)
@@ -665,10 +613,6 @@ private fun OptionsTab(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Tab 2 – Advanced
-// ─────────────────────────────────────────────────────────────────────────────
-
 private val OUTPUT_TEMPLATE_VARS = listOf("%(title)s", "%(uploader)s", "%(upload_date)s", "%(id)s", "%(ext)s", "%(resolution)s", "%(playlist_index)s")
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -685,7 +629,6 @@ private fun AdvancedTab(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // ── Cookies ────────────────────────────────────────────────────────
         OptionsSectionHeader("Cookies", Icons.Rounded.Cookie)
 
         SectionLabel("Source")
@@ -728,7 +671,6 @@ private fun AdvancedTab(
 
         OptionsDivider()
 
-        // ── Network ────────────────────────────────────────────────────────
         OptionsSectionHeader("Network", Icons.Rounded.NetworkCheck)
 
         OutlinedTextField(
@@ -784,7 +726,6 @@ private fun AdvancedTab(
 
         OptionsDivider()
 
-        // ── Output template ────────────────────────────────────────────────
         OptionsSectionHeader("Output Template", Icons.Rounded.DriveFileRenameOutline)
 
         OutlinedTextField(
@@ -826,7 +767,6 @@ private fun AdvancedTab(
 
         OptionsDivider()
 
-        // ── Custom extra args ──────────────────────────────────────────────
         OptionsSectionHeader("Extra Arguments", Icons.Rounded.Terminal)
 
         OutlinedTextField(
@@ -858,10 +798,6 @@ private fun AdvancedTab(
         Spacer(Modifier.height(8.dp))
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared composables
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun SectionLabel(text: String) {

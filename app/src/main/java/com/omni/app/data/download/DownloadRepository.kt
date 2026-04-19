@@ -6,7 +6,6 @@ import android.graphics.drawable.BitmapDrawable
 import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
@@ -27,7 +26,6 @@ class DownloadRepository(private val context: Context) {
     private val _downloads = MutableStateFlow<List<DownloadItem>>(emptyList())
     val downloads: StateFlow<List<DownloadItem>> = _downloads.asStateFlow()
 
-    // Flow for completed media from Room
     val completedMedia = downloadDao.getAllMedia()
 
     suspend fun insertMedia(media: DownloadedMedia) {
@@ -54,7 +52,7 @@ class DownloadRepository(private val context: Context) {
         return withContext(Dispatchers.IO) {
             try {
                 targetFile.parentFile?.mkdirs()
-                
+
                 val loader = ImageLoader(context)
                 val request = ImageRequest.Builder(context)
                     .data(url)
@@ -79,9 +77,8 @@ class DownloadRepository(private val context: Context) {
 
     fun enqueue(item: DownloadItem) {
         val list = _downloads.value.toMutableList()
-        // Check if item already exists to avoid duplicates
         if (list.any { it.id == item.id }) return
-        
+
         list.add(0, item)
         _downloads.value = list
         processQueue()
@@ -115,7 +112,7 @@ class DownloadRepository(private val context: Context) {
             try {
                 var currentTitle = item.title
                 val prefs = userPreferences.preferences.first()
-                
+
                 val baseDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 val customPath = prefs.downloadPath.removePrefix("primary:").trim('/')
                 val omniDir = if (customPath.isEmpty() || customPath == "Downloads/Omni") {
@@ -146,7 +143,7 @@ class DownloadRepository(private val context: Context) {
                 val result = when (item.type) {
                     DownloadType.VIDEO -> {
                         update(item.id) { copy(title = item.title, thumbnailUrl = item.thumbnailUrl) }
-                        
+
                         val h = item.quality.filter { it.isDigit() }.toIntOrNull()
 
                         YtDlpManager.downloadVideo(
@@ -154,9 +151,9 @@ class DownloadRepository(private val context: Context) {
                             outputDir    = outputDir,
                             maxHeight    = h,
                             context      = context,
-                            onTitle      = { title -> 
+                            onTitle      = { title ->
                                 currentTitle = title
-                                update(item.id) { copy(title = title) } 
+                                update(item.id) { copy(title = title) }
                             },
                             onProgress   = { pct, spd, eta ->
                                 update(item.id) { copy(progress = pct, speed = spd, eta = eta) }
@@ -164,22 +161,18 @@ class DownloadRepository(private val context: Context) {
                             },
                             onSuccess = { file ->
                                 scope.launch {
-                                    // Handle subtitles if they were downloaded as separate files
                                     if (item.embedSubtitles) {
                                         try {
                                             val subDir = File(omniDir, ".subtitles").apply { if (!exists()) mkdirs() }
                                             val fileNameNoExt = file.nameWithoutExtension
-                                            
-                                            // Look for .srt or .vtt files with same name in outputDir
+
                                             file.parentFile?.listFiles()?.forEach { f ->
                                                 if (f.name.startsWith(fileNameNoExt) && (f.extension == "srt" || f.extension == "vtt" || f.extension == "ass")) {
                                                     val dest = File(subDir, f.name)
                                                     f.renameTo(dest)
-                                                    Log.d("OmniDebug", "🏷️ Legenda movida para .subtitles: ${dest.name}")
                                                 }
                                             }
                                         } catch (e: Exception) {
-                                            Log.e("OmniDebug", "Erro ao processar legendas", e)
                                         }
                                     }
 
@@ -207,7 +200,7 @@ class DownloadRepository(private val context: Context) {
                             context        = context,
                             item           = item,
                             outputDir      = outputDir,
-                            onTitle        = { title -> 
+                            onTitle        = { title ->
                                 if (currentTitle != title) {
                                     currentTitle = title
                                     update(item.id) { copy(title = title) }
@@ -223,7 +216,7 @@ class DownloadRepository(private val context: Context) {
                             onSuccess = { file ->
                                 scope.launch {
                                     thumbAudioDir.mkdirs()
-                                    
+
                                     val thumbFile = File(thumbAudioDir, "${file.nameWithoutExtension}.jpg")
                                     val localThumbPath = downloadThumbnail(item.thumbnailUrl, thumbFile)
 
@@ -262,7 +255,6 @@ class DownloadRepository(private val context: Context) {
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                Log.e("OmniDebug", "Critical download error", e)
                 notificationHelper.showFailedNotification(item.id, item.title, e.message)
                 update(item.id) { copy(status = DownloadStatus.FAILED, errorMessage = e.message) }
             } finally {
@@ -295,9 +287,8 @@ class DownloadRepository(private val context: Context) {
             downloadDao.deleteById(item.id)
             val file = File(item.filePath)
             if (file.exists()) file.delete()
-            
-            // Delete local thumbnail too if it exists
-            item.thumbnailUrl?.let { 
+
+            item.thumbnailUrl?.let {
                 if (it.startsWith("/")) {
                     val thumbFile = File(it)
                     if (thumbFile.exists()) thumbFile.delete()

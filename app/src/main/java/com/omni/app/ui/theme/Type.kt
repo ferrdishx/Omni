@@ -1,6 +1,5 @@
 package com.omni.app.ui.theme
 
-import android.util.Log
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -102,7 +101,6 @@ fun getTypography(fontFamily: FontFamily): Typography {
             labelSmall = baseline.labelSmall.copy(fontFamily = fontFamily)
         )
     } catch (e: Exception) {
-        Log.e(TAG, "Error creating typography, falling back to default", e)
         if (fontFamily == FontFamily.Default) {
             baseline
         } else {
