@@ -67,15 +67,19 @@ Images          Coil
 
 ## Download
 
-> Omni is not on the Play Store and never will be. Grab the APK from GitHub Releases.
+> Omni is distributed as a high-performance app with full FFmpeg support. Due to its advanced features, the APK size exceeds 30MB and is hosted exclusively on GitHub for maximum quality.
 
 <div align="center">
 
 [![Download APK](https://img.shields.io/badge/⬇_Download_APK-Latest_Release-22c55e?style=for-the-badge)](https://github.com/ferrdishx/omni/releases/latest)
+[![Obtainium](https://img.shields.io/badge/Get_on-Obtainium-22c55e?style=for-the-badge&logo=github)](https://github.com/ImranRk/Obtainium)
 
 </div>
 
-Requires Android 8.0+ · ~100MB · ARM64 / ARMv7 / x86_64
+### 🚀 Automatic Updates (Recommended)
+To keep Omni updated automatically without the Play Store, we recommend using **[Obtainium](https://github.com/ImranRk/Obtainium)**. Just add the URL of this repository to Obtainium, and it will notify you and install updates directly from GitHub.
+
+**Requirements:** Android 8.0+ · ARM64 (recommended) / ARMv7 / x86_64
 
 ## How to Use
 
