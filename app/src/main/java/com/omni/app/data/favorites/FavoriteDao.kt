@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FavoriteDao {
 
+    // ── Read ─────────────────────────────────────────────────────────────────
+
     @Query("SELECT * FROM favorites ORDER BY addedAt DESC")
     fun getAll(): Flow<List<FavoriteItem>>
 
@@ -42,6 +44,8 @@ interface FavoriteDao {
 
     @Query("SELECT COUNT(*) FROM favorites")
     fun count(): Flow<Int>
+
+    // ── Write ────────────────────────────────────────────────────────────────
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: FavoriteItem)

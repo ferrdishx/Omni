@@ -1,0 +1,45 @@
+Categories:
+  - Multimedia
+
+License: GPL-3.0-only
+
+WebSite: https://github.com/ferrdishx/omni
+SourceCode: https://github.com/ferrdishx/omni
+IssueTracker: https://github.com/ferrdishx/omni/issues
+Changelog: https://github.com/ferrdishx/omni/releases
+
+AutoName: Omni
+Summary: Video and audio downloader powered by yt-dlp
+Description: |-
+  Omni is a free, open-source media hub that downloads video and audio
+  from 700+ platforms and plays them back with a built-in ExoPlayer.
+
+  Powered by yt-dlp and FFmpeg, it supports downloads up to 4K 60fps
+  for video and 320kbps for audio. The format picker shows only the
+  qualities that actually exist for each video with no fake options.
+
+  Features include background playback, Picture-in-Picture, a MiniPlayer,
+  lock screen media controls, embedded thumbnails in audio files,
+  a Favorites library, and a Material You interface that adapts to
+  your wallpaper.
+
+  No ads. No tracking. No account required.
+
+RepoType: git
+Repo: https://github.com/ferrdishx/omni
+
+Builds:
+  - versionName: 1.1.0-beta
+    versionCode: 2
+    commit: v1.1.0-beta
+    subdir: app
+    gradle:
+      - fdroid
+    prebuild:
+      - sed -i 's/google-services//g' ../build.gradle.kts || true
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+UpdateCheckData: app/build.gradle.kts|versionCode = (\d+)|.|versionName = "([^"]+)"
+CurrentVersion: 1.1.0-beta
+CurrentVersionCode: 2

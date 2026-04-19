@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -81,7 +83,8 @@ fun DownloadsScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(horizontal = dimensions.gridSpacing),
-            verticalArrangement = Arrangement.spacedBy(dimensions.gridSpacing)
+            verticalArrangement = Arrangement.spacedBy(dimensions.gridSpacing),
+            contentPadding = PaddingValues(bottom = 170.dp) // Espaço para MiniPlayer + Nav Bar
         ) {
             if (activeDownloads.isNotEmpty()) {
                 val batchGroups = activeDownloads.groupBy { it.batchId }.filterKeys { it != null }
@@ -122,7 +125,7 @@ fun DownloadsScreen(
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                     )
                 }
-                items(scannedFiles, key = { it.id }) { media ->
+                items(scannedFiles, key = { it.filePath }) { media ->
                     CompletedMediaItem(
                         media = media,
                         settings = settings,
@@ -255,7 +258,7 @@ fun ActiveDownloadItem(item: DownloadItem, settings: OmniPreferences, onCancel: 
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                     loading = { CircularProgressIndicator(modifier = Modifier.padding(12.dp), strokeWidth = 2.dp) },
-                    error = { Icon(Icons.Default.Download, contentDescription = null, tint = Color.Gray, modifier = Modifier.align(Alignment.Center)) }
+                    error = { Icon(Icons.Rounded.Download, contentDescription = null, tint = Color.Gray, modifier = Modifier.align(Alignment.Center)) }
                 )
             }
             Spacer(Modifier.width(if (isCompact) 8.dp else 12.dp))
@@ -297,7 +300,7 @@ fun ActiveDownloadItem(item: DownloadItem, settings: OmniPreferences, onCancel: 
                 }
             }
             IconButton(onClick = onCancel, modifier = Modifier.size(dimensions.iconSize * 1.5f)) {
-                Icon(Icons.Default.Close, contentDescription = "Cancel", tint = Color.Gray, modifier = Modifier.size(dimensions.iconSize))
+                Icon(Icons.Rounded.Close, contentDescription = "Cancel", tint = Color.Gray, modifier = Modifier.size(dimensions.iconSize))
             }
         }
     }
@@ -369,7 +372,7 @@ fun CompletedMediaItem(media: DownloadedMedia, settings: OmniPreferences, onClic
                     modifier = Modifier.fillMaxSize(),
                     error = {
                         Icon(
-                            imageVector = if (media.isAudio) Icons.Default.MusicNote else Icons.Default.PlayArrow,
+                            imageVector = if (media.isAudio) Icons.Rounded.MusicNote else Icons.Rounded.PlayArrow,
                             contentDescription = null,
                             tint = Color.Gray,
                             modifier = Modifier.align(Alignment.Center).size(30.dp)
@@ -418,7 +421,7 @@ fun CompletedMediaItem(media: DownloadedMedia, settings: OmniPreferences, onClic
             Box {
                 IconButton(onClick = { showMenu = true }, modifier = Modifier.size(dimensions.iconSize * 1.5f)) {
                     Icon(
-                        Icons.Default.CheckCircle, 
+                        Icons.Rounded.CheckCircle, 
                         contentDescription = "Options", 
                         tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f), 
                         modifier = Modifier.size(dimensions.iconSize)
@@ -428,12 +431,12 @@ fun CompletedMediaItem(media: DownloadedMedia, settings: OmniPreferences, onClic
                     DropdownMenuItem(
                         text = { Text("Play") },
                         onClick = { showMenu = false; onClick() },
-                        leadingIcon = { Icon(Icons.Default.PlayArrow, contentDescription = null) }
+                        leadingIcon = { Icon(Icons.Rounded.PlayArrow, contentDescription = null) }
                     )
                     DropdownMenuItem(
                         text = { Text("Delete", color = Color.Red) },
                         onClick = { showMenu = false; onDelete() },
-                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) }
+                        leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null, tint = Color.Red) }
                     )
                 }
             }

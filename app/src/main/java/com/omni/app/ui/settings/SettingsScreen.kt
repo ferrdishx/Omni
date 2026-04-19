@@ -1,6 +1,10 @@
 package com.omni.app.ui.settings
 
+import android.content.Context
+import com.omni.app.BuildConfig
 import android.net.Uri
+import android.widget.Toast
+import com.yausername.youtubedl_android.YoutubeDL
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
@@ -13,8 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -71,7 +75,7 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0F0F14))
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
         Row(
@@ -81,12 +85,12 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Rounded.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.Rounded.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
             }
             Text(
                 text = "Settings",
                 style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -98,13 +102,13 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
                 .padding(16.dp)
                 .height(52.dp),
             shape = RoundedCornerShape(26.dp),
-            color = Color(0xFF1E1E26)
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray)
+                Icon(Icons.Rounded.Search, contentDescription = null, tint = Color.Gray)
                 Spacer(Modifier.width(12.dp))
                 Text("Search", color = Color.Gray)
             }
@@ -197,16 +201,16 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
             SettingsCategoryItem(
                 icon = Icons.Rounded.Category,
                 iconColor = Color(0xFF1A4585),
-                title = "Other",
-                description = "Performance and advanced settings",
+                title = "Performance",
+                description = "Settings for slower devices",
                 isExpanded = expandedCategory == "Other",
                 onClick = { expandedCategory = if (expandedCategory == "Other") null else "Other" }
             ) {
-                SubSettingToggle("Low performance mode", "Limits heavy UI effects (like blur)", state.lowPerfMode) {
-                    scope.launch { prefs.setLowPerfMode(it) }
-                }
-                SubSettingToggle("Reduce animations", "Minimize visual effects", state.reduceAnimations) {
-                    scope.launch { prefs.setReduceAnimations(it) }
+                SubSettingToggle("Low performance mode", "Disables all animations, blurs and visual effects", state.lowPerfMode) {
+                    scope.launch { 
+                        prefs.setLowPerfMode(it)
+                        prefs.setReduceAnimations(it)
+                    }
                 }
             }
 
@@ -218,8 +222,8 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
                 isExpanded = expandedCategory == "About",
                 onClick = { expandedCategory = if (expandedCategory == "About") null else "About" }
             ) {
-                SubSettingItem("Version", "Omni Beta 1.0") { }
-                SubSettingItem("Engine", "yt-dlp + FFmpeg") { }
+                SubSettingItem("Version", "Omni 1.1") { }
+                EngineUpdateItem()
             }
 
             Spacer(Modifier.height(32.dp))
@@ -297,12 +301,12 @@ fun SettingsCategoryItem(
             }
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = Color.White, fontWeight = FontWeight.Bold)
-                Text(description, style = MaterialTheme.typography.bodyMedium, color = Color.Gray, lineHeight = 18.sp)
+                Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold)
+                Text(description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 18.sp)
             }
             Icon(
                 if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                null, tint = Color.Gray
+                null, tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         AnimatedVisibility(visible = isExpanded) {
@@ -318,6 +322,80 @@ fun SettingsCategoryItem(
 }
 
 @Composable
+fun EngineUpdateItem() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val scope = rememberCoroutineScope()
+    var updateState by remember { mutableStateOf<String>("idle") }
+    // "idle" | "checking" | "updated" | "uptodate" | "error"
+
+    val (statusText, statusColor) = when (updateState) {
+        "checking"  -> "Checking for updates..." to MaterialTheme.colorScheme.primary
+        "updated"   -> "Updated to latest version!" to Color(0xFF2E7D32)
+        "uptodate"  -> "Already up to date" to MaterialTheme.colorScheme.onSurfaceVariant
+        "error"     -> "Update failed. Check internet." to MaterialTheme.colorScheme.error
+        else        -> {
+            val version = try {
+                YoutubeDL.getInstance().version(context) ?: "Unknown"
+            } catch (e: Exception) { "Unknown" }
+            "yt-dlp $version · tap to update" to MaterialTheme.colorScheme.onSurfaceVariant
+        }
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = updateState != "checking") {
+                updateState = "checking"
+                scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        val result = YoutubeDL.getInstance().updateYoutubeDL(
+                            context,
+                            YoutubeDL.UpdateChannel.STABLE
+                        )
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                            updateState = when (result) {
+                                YoutubeDL.UpdateStatus.DONE -> "updated"
+                                YoutubeDL.UpdateStatus.ALREADY_UP_TO_DATE -> "uptodate"
+                                else -> "error"
+                            }
+                        }
+                    } catch (e: Exception) {
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                            updateState = "error"
+                        }
+                    }
+                }
+            }
+            .padding(horizontal = 20.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text("Engine", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = statusText,
+                style = MaterialTheme.typography.bodySmall,
+                color = statusColor
+            )
+        }
+        if (updateState == "checking") {
+            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+        } else {
+            Icon(
+                imageVector = when (updateState) {
+                    "updated"  -> Icons.Rounded.CheckCircle
+                    "uptodate" -> Icons.Rounded.CheckCircle
+                    "error"    -> Icons.Rounded.Warning
+                    else       -> Icons.Rounded.Refresh
+                },
+                contentDescription = null,
+                tint = statusColor,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+@Composable
 fun SubSettingItem(title: String, value: String, onClick: () -> Unit) {
     Column(
         modifier = Modifier
@@ -325,8 +403,8 @@ fun SubSettingItem(title: String, value: String, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(vertical = 8.dp)
     ) {
-        Text(title, color = Color.White, style = MaterialTheme.typography.bodyLarge)
-        Text(value, color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
+        Text(title, color = MaterialTheme.colorScheme.onBackground, style = MaterialTheme.typography.bodyLarge)
+        Text(value, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -339,8 +417,8 @@ fun SubSettingToggle(title: String, description: String, checked: Boolean, onChe
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f)) {
-            Text(title, color = Color.White, style = MaterialTheme.typography.bodyLarge)
-            Text(description, color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
+            Text(title, color = MaterialTheme.colorScheme.onBackground, style = MaterialTheme.typography.bodyLarge)
+            Text(description, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange)
     }

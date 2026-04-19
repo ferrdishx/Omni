@@ -10,6 +10,7 @@ data class DownloadedMedia(
     val filePath: String,
     val thumbnailUrl: String?,
     val isAudio: Boolean,
+    val author: String = "Unknown",
     val format: String = "Unknown",
     val timestamp: Long = System.currentTimeMillis()
 )

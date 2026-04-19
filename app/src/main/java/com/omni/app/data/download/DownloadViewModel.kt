@@ -33,6 +33,47 @@ class DownloadViewModel(app: Application) : AndroidViewModel(app) {
     private val _scannedFiles = MutableStateFlow<List<DownloadedMedia>>(emptyList())
     val scannedFiles: StateFlow<List<DownloadedMedia>> = _scannedFiles.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
+    private val _sortOrder = MutableStateFlow("Date") // "Date", "Name", "Size"
+    val sortOrder = _sortOrder.asStateFlow()
+
+    private val _typeFilter = MutableStateFlow("All") // "All", "Audio", "Video"
+    val typeFilter = _typeFilter.asStateFlow()
+
+    val filteredFiles = combine(scannedFiles, searchQuery, sortOrder, typeFilter) { files, query, sort, type ->
+        val filteredByType = when (type) {
+            "Audio" -> files.filter { it.isAudio }
+            "Video" -> files.filter { !it.isAudio }
+            else -> files
+        }
+
+        val filteredByQuery = if (query.isBlank()) {
+            filteredByType
+        } else {
+            filteredByType.filter { it.title.contains(query, ignoreCase = true) }
+        }
+
+        when (sort) {
+            "Name" -> filteredByQuery.sortedBy { it.title }
+            "Size" -> filteredByQuery.sortedByDescending { File(it.filePath).length() }
+            else -> filteredByQuery.sortedByDescending { it.timestamp }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun setSortOrder(order: String) {
+        _sortOrder.value = order
+    }
+
+    fun setTypeFilter(type: String) {
+        _typeFilter.value = type
+    }
+
     val ytdlpSetupProgress: StateFlow<Float?> = repo.ytdlpSetupProgress
 
     init { 
@@ -79,19 +120,11 @@ class DownloadViewModel(app: Application) : AndroidViewModel(app) {
 
                 val baseDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 val omniDir = File(baseDir, "Omni")
-                
-                // Folders to scan
-                val videosDir = File(omniDir, "Videos")
-                val musicsDir = File(omniDir, "Musics")
-                
-                val foldersToScan = listOf(videosDir, musicsDir)
-                foldersToScan.forEach { if (!it.exists()) it.mkdirs() }
+                if (!omniDir.exists()) omniDir.mkdirs()
 
-                val physicalFiles = foldersToScan.flatMap { folder ->
-                    folder.listFiles()?.filter {
-                        it.isFile && it.extension.lowercase() in listOf("mp4", "mp3", "m4a", "wav", "flac", "ogg", "mkv", "webm")
-                    }?.toList() ?: emptyList()
-                }
+                val physicalFiles = omniDir.walkTopDown().filter { file ->
+                    file.isFile && file.extension.lowercase() in listOf("mp4", "mp3", "m4a", "wav", "flac", "ogg", "mkv", "webm")
+                }.toList()
 
                 val dbList = repo.completedMedia.first()
 
@@ -118,8 +151,9 @@ class DownloadViewModel(app: Application) : AndroidViewModel(app) {
                             id = file.absolutePath,
                             title = file.name,
                             filePath = file.absolutePath,
-                            thumbnailUrl = localThumb?.absolutePath,
+                            thumbnailUrl = localThumb?.absolutePath ?: file.absolutePath,
                             isAudio = file.extension.lowercase() in listOf("mp3", "m4a", "wav", "flac", "ogg"),
+                            author = "Local File",
                             format = file.extension.uppercase(),
                             timestamp = file.lastModified()
                         )

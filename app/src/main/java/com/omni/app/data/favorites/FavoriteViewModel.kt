@@ -40,6 +40,8 @@ class FavoriteViewModel(app: Application) : AndroidViewModel(app) {
 
     fun isFavorite(id: String): Flow<Boolean> = dao.isFavorite(id)
 
+    // ── Actions ───────────────────────────────────────────────────────────────
+
     fun toggle(media: DownloadedMedia, url: String = "", author: String = "", website: String = "") {
         viewModelScope.launch {
             if (dao.isFavorite(media.id).first()) {
@@ -65,6 +67,8 @@ class FavoriteViewModel(app: Application) : AndroidViewModel(app) {
     fun remove(id: String) = viewModelScope.launch { dao.deleteById(id) }
 
     fun clearAll() = viewModelScope.launch { dao.deleteAll() }
+
+    // ── Filters / sort ────────────────────────────────────────────────────────
 
     fun setQuery(q: String)               = _state.update { it.copy(query = q) }
     fun setSortBy(s: String)              = _state.update { it.copy(sortBy = s) }

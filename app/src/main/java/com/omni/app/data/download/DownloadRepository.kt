@@ -150,12 +150,10 @@ class DownloadRepository(private val context: Context) {
                         val h = item.quality.filter { it.isDigit() }.toIntOrNull()
 
                         YtDlpManager.downloadVideo(
-                            url          = item.url,
+                            item         = item,
                             outputDir    = outputDir,
                             maxHeight    = h,
-                            selectedFormatId = item.selectedFormatId,
-                            fps60        = item.prefer60fps,
-                            outputFormat = item.format.lowercase(),
+                            context      = context,
                             onTitle      = { title -> 
                                 currentTitle = title
                                 update(item.id) { copy(title = title) } 
@@ -166,12 +164,32 @@ class DownloadRepository(private val context: Context) {
                             },
                             onSuccess = { file ->
                                 scope.launch {
+                                    // Handle subtitles if they were downloaded as separate files
+                                    if (item.embedSubtitles) {
+                                        try {
+                                            val subDir = File(omniDir, ".subtitles").apply { if (!exists()) mkdirs() }
+                                            val fileNameNoExt = file.nameWithoutExtension
+                                            
+                                            // Look for .srt or .vtt files with same name in outputDir
+                                            file.parentFile?.listFiles()?.forEach { f ->
+                                                if (f.name.startsWith(fileNameNoExt) && (f.extension == "srt" || f.extension == "vtt" || f.extension == "ass")) {
+                                                    val dest = File(subDir, f.name)
+                                                    f.renameTo(dest)
+                                                    Log.d("OmniDebug", "🏷️ Legenda movida para .subtitles: ${dest.name}")
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            Log.e("OmniDebug", "Erro ao processar legendas", e)
+                                        }
+                                    }
+
                                     val media = DownloadedMedia(
                                         id = item.id,
                                         title = currentTitle,
                                         filePath = file.absolutePath,
                                         thumbnailUrl = file.absolutePath,
                                         isAudio = false,
+                                        author = item.author,
                                         format = item.format,
                                         timestamp = System.currentTimeMillis()
                                     )
@@ -187,11 +205,8 @@ class DownloadRepository(private val context: Context) {
 
                         YtDlpManager.downloadAudio(
                             context        = context,
-                            url            = item.url,
+                            item           = item,
                             outputDir      = outputDir,
-                            audioFormat    = "mp3",
-                            audioBitrate   = "0",
-                            embedThumbnail = item.embedThumbnail,
                             onTitle        = { title -> 
                                 if (currentTitle != title) {
                                     currentTitle = title
@@ -218,6 +233,7 @@ class DownloadRepository(private val context: Context) {
                                         filePath = file.absolutePath,
                                         thumbnailUrl = localThumbPath ?: item.thumbnailUrl,
                                         isAudio = true,
+                                        author = item.author,
                                         format = item.format,
                                         timestamp = System.currentTimeMillis()
                                     )

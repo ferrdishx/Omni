@@ -16,4 +16,7 @@ interface DownloadDao {
 
     @Query("DELETE FROM downloaded_media WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    @Query("SELECT * FROM downloaded_media WHERE id = :id")
+    suspend fun getMediaById(id: String): DownloadedMedia?
 }

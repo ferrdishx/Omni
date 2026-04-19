@@ -22,6 +22,9 @@ class OmniPlayerController(private val context: Context) {
     private val _currentMediaItem = MutableStateFlow<MediaItem?>(null)
     val currentMediaItem: StateFlow<MediaItem?> = _currentMediaItem.asStateFlow()
 
+    private val _mediaMetadata = MutableStateFlow(androidx.media3.common.MediaMetadata.EMPTY)
+    val mediaMetadata: StateFlow<androidx.media3.common.MediaMetadata> = _mediaMetadata.asStateFlow()
+
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
 
@@ -49,6 +52,9 @@ class OmniPlayerController(private val context: Context) {
     private val _sampleRate = MutableStateFlow<Int>(0)
     val sampleRate: StateFlow<Int> = _sampleRate.asStateFlow()
 
+    private val _videoAspectRatio = MutableStateFlow(1f)
+    val videoAspectRatio: StateFlow<Float> = _videoAspectRatio.asStateFlow()
+
     private val _sleepTimerRemaining = MutableStateFlow<Long?>(null)
     val sleepTimerRemaining: StateFlow<Long?> = _sleepTimerRemaining.asStateFlow()
 
@@ -65,6 +71,11 @@ class OmniPlayerController(private val context: Context) {
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                     _currentMediaItem.value = mediaItem
                     _duration.value = controller.duration.coerceAtLeast(0L)
+                    _mediaMetadata.value = controller.mediaMetadata
+                }
+
+                override fun onMediaMetadataChanged(mediaMetadata: androidx.media3.common.MediaMetadata) {
+                    _mediaMetadata.value = mediaMetadata
                 }
 
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -92,8 +103,15 @@ class OmniPlayerController(private val context: Context) {
                 override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
                     updateAudioFormat(controller)
                 }
+
+                override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
+                    if (videoSize.width > 0 && videoSize.height > 0) {
+                        _videoAspectRatio.value = videoSize.width.toFloat() / videoSize.height.toFloat()
+                    }
+                }
             })
             _currentMediaItem.value = controller?.currentMediaItem
+            _mediaMetadata.value = controller?.mediaMetadata ?: androidx.media3.common.MediaMetadata.EMPTY
             updateAudioFormat(controller)
             _isPlaying.value = controller?.isPlaying ?: false
             _playbackState.value = controller?.playbackState ?: Player.STATE_IDLE
@@ -162,16 +180,19 @@ class OmniPlayerController(private val context: Context) {
     }
 
     fun playNext() {
-        _mediaController.value?.seekToNext()
+        _mediaController.value?.seekToNextMediaItem()
     }
 
     fun playPrevious() {
-        _mediaController.value?.seekToPrevious()
+        _mediaController.value?.seekToPreviousMediaItem()
     }
 
     fun toggleShuffle() {
         _mediaController.value?.let {
-            it.shuffleModeEnabled = !it.shuffleModeEnabled
+            val nextMode = !it.shuffleModeEnabled
+            it.shuffleModeEnabled = nextMode
+            // Força o estado a atualizar para o UI
+            _shuffleModeEnabled.value = nextMode
         }
     }
 
@@ -193,7 +214,17 @@ class OmniPlayerController(private val context: Context) {
     }
 
     fun setPlaybackSpeed(speed: Float) {
-        _mediaController.value?.setPlaybackSpeed(speed)
+        _mediaController.value?.let {
+            val currentPitch = it.playbackParameters.pitch
+            it.playbackParameters = androidx.media3.common.PlaybackParameters(speed, currentPitch)
+        }
+    }
+
+    fun setPitch(pitch: Float) {
+        _mediaController.value?.let {
+            val currentSpeed = it.playbackParameters.speed
+            it.playbackParameters = androidx.media3.common.PlaybackParameters(currentSpeed, pitch)
+        }
     }
 
     fun seekTo(positionMs: Long) {

@@ -9,29 +9,31 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.omni.app.ui.downloads.DownloadsScreen
+import com.omni.app.ui.favorites.FavoritesScreen
 import com.omni.app.ui.home.HomeScreen
 import com.omni.app.ui.library.LibraryScreen
 import com.omni.app.ui.settings.SettingsScreen
 import com.omni.app.ui.theme.LocalOmniPreferences
-
 import com.omni.app.ui.player.OmniPlayerViewModel
 
 sealed class Screen(val route: String) {
-    object Home : Screen("home")
+    object Home      : Screen("home")
     object Downloads : Screen("downloads")
-    object Library : Screen("library")
-    object Player : Screen("player")
-    object Settings : Screen("settings")
+    object Library   : Screen("library")
+    object Favorites : Screen("favorites")
+    object Player    : Screen("player")
+    object Settings  : Screen("settings")
 }
 
 @Composable
 fun OmniNavHost(
     navController: NavHostController,
-    playerViewModel: OmniPlayerViewModel
+    playerViewModel: OmniPlayerViewModel,
+    onOpenPlayer: () -> Unit
 ) {
     val prefs by LocalOmniPreferences.current.let { androidx.compose.runtime.rememberUpdatedState(it) }
-    val duration = if (prefs.reduceAnimations) 0 else 300
-    
+    val duration = if (prefs.reduceAnimations || prefs.lowPerfMode) 0 else 300
+
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route,
@@ -58,15 +60,22 @@ fun OmniNavHost(
         composable(Screen.Downloads.route) {
             DownloadsScreen(
                 playerViewModel = playerViewModel,
-                onNavigateToPlayer = { navController.navigate(Screen.Player.route) }
+                onNavigateToPlayer = { onOpenPlayer() }
             )
         }
         composable(Screen.Library.route) {
             LibraryScreen(
                 playerViewModel = playerViewModel,
-                onNavigateToPlayer = { navController.navigate(Screen.Player.route) }
+                onNavigateToPlayer = { onOpenPlayer() }
             )
         }
+        composable(Screen.Favorites.route) {
+            FavoritesScreen(
+                playerViewModel = playerViewModel,
+                onNavigateToPlayer = { onOpenPlayer() }
+            )
+        }
+        /* 
         composable(
             route = Screen.Player.route,
             enterTransition = {
@@ -84,9 +93,11 @@ fun OmniNavHost(
         ) {
             com.omni.app.ui.player.OmniPlayerScreen(
                 viewModel = playerViewModel,
-                onClose = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() }
             )
         }
+        */
+
         composable(Screen.Settings.route) {
             SettingsScreen(onBack = { navController.popBackStack() })
         }

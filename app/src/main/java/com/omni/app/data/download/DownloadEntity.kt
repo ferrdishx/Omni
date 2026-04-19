@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class DownloadEntity(
     @PrimaryKey val id: String,
     val title: String,
+    val author: String = "Unknown",
     val filePath: String,
     val thumbnail: String?,
     val type: String,

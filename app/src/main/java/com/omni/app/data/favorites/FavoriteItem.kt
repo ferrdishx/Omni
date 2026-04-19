@@ -4,6 +4,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+/**
+ * A favorited media item.
+ * Inspired by ytdlnis HistoryItem — keeps url, metadata and type
+ * so the user can re-download or play directly from Favorites.
+ */
 @Entity(tableName = "favorites")
 data class FavoriteItem(
     @PrimaryKey
