@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Omni — ic_launcher_foreground.xml
+Otimizado para Material 3
+Conceito: Conectividade Global + Download
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="108dp"
+        android:height="108dp"
+        android:viewportWidth="108"
+        android:viewportHeight="108">
+
+    <!-- 1. Globo (Círculo Externo) - Representa o 'Omni' -->
+    <path
+        android:pathData="M54,22 A32,32 0 1,0 54,86 A32,32 0 1,0 54,22 Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeAlpha="0.3"
+        android:fillColor="#00000000" />
+
+    <!-- 2. Linhas de Longitude (Elipse Vertical) -->
+    <path
+        android:pathData="M54,22 A14,32 0 1,0 54,86 A14,32 0 1,0 54,22 Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeAlpha="0.4"
+        android:fillColor="#00000000" />
+
+    <!-- 3. Linha do Equador (Horizontal) -->
+    <path
+        android:pathData="M22,54 L86,54"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeAlpha="0.4"
+        android:fillColor="#00000000" />
+
+    <!-- 4. Seta de Download (Sombra suave para destaque) -->
+    <path
+        android:pathData="M54,34 L54,64 M40,52 L54,68 L68,52"
+        android:strokeColor="#000000"
+        android:strokeWidth="8"
+        android:strokeAlpha="0.1"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- 5. Seta de Download Principal (Branca) -->
+    <path
+        android:pathData="M54,34 L54,64 M40,52 L54,68 L68,52"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    </vector>
