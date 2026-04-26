@@ -263,7 +263,7 @@ fun HomeScreen(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .offset(y = (-40).dp), // Sobe um pouco o conteúdo
+                                        .offset(y = (-40).dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center
                                 ) {
