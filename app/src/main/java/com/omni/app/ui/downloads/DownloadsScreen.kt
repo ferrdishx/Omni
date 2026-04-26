@@ -83,7 +83,7 @@ fun DownloadsScreen(
                 .padding(padding)
                 .padding(horizontal = dimensions.gridSpacing),
             verticalArrangement = Arrangement.spacedBy(dimensions.gridSpacing),
-            contentPadding = PaddingValues(bottom = 170.dp) // Espaço para MiniPlayer + Nav Bar
+            contentPadding = PaddingValues(bottom = 170.dp)
         ) {
             if (activeDownloads.isNotEmpty()) {
                 val batchGroups = activeDownloads.groupBy { it.batchId }.filterKeys { it != null }
