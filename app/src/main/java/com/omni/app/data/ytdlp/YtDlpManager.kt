@@ -156,7 +156,7 @@ object YtDlpManager {
             val info: YtVideoInfo = YoutubeDL.getInstance().getInfo(request)
 
             val formats = info.formats?.filter {
-                (it.height ?: 0) >= 144 && // Remove resoluções irrelevantes (storyboards/thumbnails)
+                (it.height ?: 0) >= 144 && // irrelevant resolution 
                 it.ext != "mhtml" &&
                 it.acodec != "none" || it.vcodec != "none"
             }
@@ -177,7 +177,7 @@ object YtDlpManager {
                 ?.sortedWith(compareByDescending<AvailableFormat> { it.height }
                     .thenByDescending { it.fps }
                     .thenByDescending { it.filesize ?: 0L })
-                ?.distinctBy { it.label } // Mantém apenas um de cada (ex: um 1080p, um 1080p60)
+                ?.distinctBy { it.label } // keeps only 1 at home (ex: one 1080p, one 1080p60)
                 ?.sortedByDescending { it.height } ?: emptyList()
             formats.forEach { fmt ->
             }
